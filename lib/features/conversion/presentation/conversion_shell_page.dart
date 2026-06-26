@@ -1,7 +1,8 @@
 import 'dart:io';
 
-import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:file_selector/file_selector.dart';
+import 'package:flutter/material.dart';
 import 'package:path/path.dart' as path;
 
 import '../../../models/conversion_enums.dart';
@@ -233,6 +234,10 @@ class _ConversionShellPageState extends State<ConversionShellPage> {
     required String fallbackMessage,
   }) async {
     try {
+      if (Platform.isLinux) {
+        return await _pickFilePathWithFileSelector(dialogTitle: dialogTitle);
+      }
+
       final result = await FilePicker.pickFiles(
         dialogTitle: dialogTitle,
       );
@@ -252,6 +257,10 @@ class _ConversionShellPageState extends State<ConversionShellPage> {
     required String fallbackMessage,
   }) async {
     try {
+      if (Platform.isLinux) {
+        return await getDirectoryPath(confirmButtonText: dialogTitle);
+      }
+
       return await FilePicker.getDirectoryPath(
         dialogTitle: dialogTitle,
       );
@@ -336,6 +345,15 @@ class _ConversionShellPageState extends State<ConversionShellPage> {
     }
 
     return result.trim();
+  }
+
+  Future<String?> _pickFilePathWithFileSelector({
+    required String dialogTitle,
+  }) async {
+    final file = await openFile(
+      confirmButtonText: dialogTitle,
+    );
+    return file?.path;
   }
 }
 
