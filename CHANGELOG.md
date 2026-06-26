@@ -15,6 +15,8 @@ The format is based on Keep a Changelog, and this project follows Semantic Versi
 - Tool path persistence for separate `ffmpeg` and `ffprobe` manual overrides.
 - Tool detection and validation services for `ffmpeg` and `ffprobe`.
 - Widget test coverage for the new app shell.
+- Source selection, output placement, and trim validation controls for the conversion workflow.
+- Browse actions for manually selecting `ffmpeg` and `ffprobe` executables.
 
 ### Changed
 

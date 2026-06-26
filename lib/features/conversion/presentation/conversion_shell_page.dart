@@ -1,9 +1,14 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:file_picker/file_picker.dart';
+import 'package:path/path.dart' as path;
 
 import '../../../models/conversion_enums.dart';
 import '../../../models/tool_detection_result.dart';
 import '../../../services/app_settings_service.dart';
 import '../../../services/tool_detection_service.dart';
+import '../application/conversion_setup_controller.dart';
 import '../../settings/application/tool_paths_controller.dart';
 
 class ConversionShellPage extends StatefulWidget {
@@ -15,18 +20,25 @@ class ConversionShellPage extends StatefulWidget {
 
 class _ConversionShellPageState extends State<ConversionShellPage> {
   late final ToolPathsController _toolPathsController;
+  late final ConversionSetupController _conversionSetupController;
   late final TextEditingController _ffmpegTextController;
   late final TextEditingController _ffprobeTextController;
+  late final TextEditingController _startTimeTextController;
+  late final TextEditingController _endTimeTextController;
 
   @override
   void initState() {
     super.initState();
     _ffmpegTextController = TextEditingController();
     _ffprobeTextController = TextEditingController();
+    _startTimeTextController = TextEditingController();
+    _endTimeTextController = TextEditingController();
     _toolPathsController = ToolPathsController(
       settingsService: AppSettingsService(),
       toolDetectionService: const ToolDetectionService(),
     )..addListener(_syncTextControllers);
+    _conversionSetupController = ConversionSetupController()
+      ..addListener(_syncTextControllers);
 
     _toolPathsController.load();
   }
@@ -36,8 +48,13 @@ class _ConversionShellPageState extends State<ConversionShellPage> {
     _toolPathsController
       ..removeListener(_syncTextControllers)
       ..dispose();
+    _conversionSetupController
+      ..removeListener(_syncTextControllers)
+      ..dispose();
     _ffmpegTextController.dispose();
     _ffprobeTextController.dispose();
+    _startTimeTextController.dispose();
+    _endTimeTextController.dispose();
     super.dispose();
   }
 
@@ -46,7 +63,10 @@ class _ConversionShellPageState extends State<ConversionShellPage> {
     return Scaffold(
       body: SafeArea(
         child: AnimatedBuilder(
-          animation: _toolPathsController,
+          animation: Listenable.merge([
+            _toolPathsController,
+            _conversionSetupController,
+          ]),
           builder: (context, _) {
             return SingleChildScrollView(
               padding: const EdgeInsets.all(24),
@@ -64,17 +84,9 @@ class _ConversionShellPageState extends State<ConversionShellPage> {
                         children: [
                           SizedBox(
                             width: 520,
-                            child: _WorkflowCard(
-                              title: 'Conversion workflow',
-                              description:
-                                  'Steps 1 to 4 prepare the shell, models, settings, '
-                                  'and tool detection layer before we add file picking '
-                                  'and actual transcoding.',
-                              bullets: const [
-                                'Single file or top-level directory input',
-                                'Resolve-safe WAV and DNxHR output targets',
-                                'Optional trim support planned next',
-                              ],
+                            child: _SourceSelectionCard(
+                              controller: _conversionSetupController,
+                              onPickSource: _pickSourcePath,
                             ),
                           ),
                           SizedBox(
@@ -83,34 +95,37 @@ class _ConversionShellPageState extends State<ConversionShellPage> {
                               controller: _toolPathsController,
                               ffmpegTextController: _ffmpegTextController,
                               ffprobeTextController: _ffprobeTextController,
+                              onPickFfmpegPath: _pickFfmpegPath,
+                              onPickFfprobePath: _pickFfprobePath,
                             ),
                           ),
                           SizedBox(
                             width: 520,
-                            child: const _WorkflowCard(
-                              title: 'What is ready now',
-                              description:
-                                  'The app can persist manual tool paths, re-detect '
-                                  'system tools, and validate the effective ffmpeg '
-                                  'and ffprobe executables independently.',
-                              bullets: [
-                                'Separate ffmpeg and ffprobe overrides',
-                                'Override takes precedence over detected path',
-                                'Validation runs against the effective tool path',
-                              ],
+                            child: _OutputModeCard(
+                              controller: _conversionSetupController,
                             ),
                           ),
                           SizedBox(
                             width: 520,
-                            child: const _WorkflowCard(
-                              title: 'Next implementation block',
+                            child: _TrimCard(
+                              controller: _conversionSetupController,
+                              startTimeTextController: _startTimeTextController,
+                              endTimeTextController: _endTimeTextController,
+                            ),
+                          ),
+                          const SizedBox(
+                            width: 1064,
+                            child: _WorkflowCard(
+                              title: 'Implementation status',
                               description:
-                                  'The next steps will add source pickers, output '
-                                  'mode selection, trim validation, and directory scanning.',
+                                  'Steps 5 to 8 now cover tool-path overrides with '
+                                  'browse actions, source selection, output mode '
+                                  'preview, and trim validation.',
                               bullets: [
-                                'File and directory selection',
-                                'Output naming preview',
-                                'Top-level directory scan service',
+                                'Separate ffmpeg and ffprobe browse actions',
+                                'Single file or top-level directory selection',
+                                'Output placement preview before conversion',
+                                'Trim format and range validation',
                               ],
                             ),
                           ),
@@ -144,6 +159,183 @@ class _ConversionShellPageState extends State<ConversionShellPage> {
         selection: TextSelection.collapsed(offset: ffprobePath.length),
       );
     }
+
+    if (_startTimeTextController.text != _conversionSetupController.startTimeText) {
+      final startTimeText = _conversionSetupController.startTimeText;
+      _startTimeTextController.value = _startTimeTextController.value.copyWith(
+        text: startTimeText,
+        selection: TextSelection.collapsed(offset: startTimeText.length),
+      );
+    }
+
+    if (_endTimeTextController.text != _conversionSetupController.endTimeText) {
+      final endTimeText = _conversionSetupController.endTimeText;
+      _endTimeTextController.value = _endTimeTextController.value.copyWith(
+        text: endTimeText,
+        selection: TextSelection.collapsed(offset: endTimeText.length),
+      );
+    }
+  }
+
+  Future<void> _pickFfmpegPath() async {
+    final filePath = await _pickFilePath(
+      dialogTitle: 'Select ffmpeg executable',
+      fallbackTitle: 'Enter ffmpeg path',
+      fallbackMessage:
+          'The desktop file picker is unavailable on this system. '
+          'Enter the full path to the ffmpeg executable.',
+    );
+    if (filePath != null) {
+      await _toolPathsController.updateManualFfmpegPath(filePath);
+    }
+  }
+
+  Future<void> _pickFfprobePath() async {
+    final filePath = await _pickFilePath(
+      dialogTitle: 'Select ffprobe executable',
+      fallbackTitle: 'Enter ffprobe path',
+      fallbackMessage:
+          'The desktop file picker is unavailable on this system. '
+          'Enter the full path to the ffprobe executable.',
+    );
+    if (filePath != null) {
+      await _toolPathsController.updateManualFfprobePath(filePath);
+    }
+  }
+
+  Future<void> _pickSourcePath() async {
+    if (_conversionSetupController.sourceType == SourceType.file) {
+      _conversionSetupController.setSelectedSourcePath(
+        await _pickFilePath(
+          dialogTitle: 'Select media file',
+          fallbackTitle: 'Enter media file path',
+          fallbackMessage:
+              'The desktop file picker is unavailable on this system. '
+              'Enter the full path to the media file you want to convert.',
+        ),
+      );
+      return;
+    }
+
+    final directoryPath = await _pickDirectoryPath(
+      dialogTitle: 'Select media folder',
+      fallbackTitle: 'Enter media folder path',
+      fallbackMessage:
+          'The desktop folder picker is unavailable on this system. '
+          'Enter the full path to the folder you want to scan.',
+    );
+    _conversionSetupController.setSelectedSourcePath(directoryPath);
+  }
+
+  Future<String?> _pickFilePath({
+    required String dialogTitle,
+    required String fallbackTitle,
+    required String fallbackMessage,
+  }) async {
+    try {
+      final result = await FilePicker.pickFiles(
+        dialogTitle: dialogTitle,
+      );
+      return result?.files.singleOrNull?.path;
+    } catch (error) {
+      _showPickerFallbackNotice(error);
+      return _showManualPathDialog(
+        title: fallbackTitle,
+        message: fallbackMessage,
+      );
+    }
+  }
+
+  Future<String?> _pickDirectoryPath({
+    required String dialogTitle,
+    required String fallbackTitle,
+    required String fallbackMessage,
+  }) async {
+    try {
+      return await FilePicker.getDirectoryPath(
+        dialogTitle: dialogTitle,
+      );
+    } catch (error) {
+      _showPickerFallbackNotice(error);
+      return _showManualPathDialog(
+        title: fallbackTitle,
+        message: fallbackMessage,
+      );
+    }
+  }
+
+  void _showPickerFallbackNotice(Object error) {
+    if (!mounted) {
+      return;
+    }
+
+    final messenger = ScaffoldMessenger.of(context);
+    final message = Platform.isLinux
+        ? 'Desktop picker failed. Falling back to manual path entry.'
+        : 'Picker failed. Falling back to manual path entry.';
+
+    messenger
+      ..hideCurrentSnackBar()
+      ..showSnackBar(SnackBar(content: Text(message)));
+
+    debugPrint('Picker error: $error');
+  }
+
+  Future<String?> _showManualPathDialog({
+    required String title,
+    required String message,
+  }) async {
+    final controller = TextEditingController();
+
+    final result = await showDialog<String>(
+      context: context,
+      builder: (dialogContext) {
+        return AlertDialog(
+          title: Text(title),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(message),
+              if (Platform.isLinux) ...[
+                const SizedBox(height: 8),
+                const Text(
+                  'This can happen when the XDG desktop portal service is unavailable.',
+                ),
+              ],
+              const SizedBox(height: 16),
+              TextField(
+                controller: controller,
+                autofocus: true,
+                decoration: const InputDecoration(
+                  labelText: 'Full path',
+                  border: OutlineInputBorder(),
+                ),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(),
+              child: const Text('Cancel'),
+            ),
+            FilledButton(
+              onPressed: () {
+                Navigator.of(dialogContext).pop(controller.text.trim());
+              },
+              child: const Text('Use path'),
+            ),
+          ],
+        );
+      },
+    );
+
+    controller.dispose();
+    if (result == null || result.trim().isEmpty) {
+      return null;
+    }
+
+    return result.trim();
   }
 }
 
@@ -261,11 +453,15 @@ class _ToolPathsCard extends StatelessWidget {
     required this.controller,
     required this.ffmpegTextController,
     required this.ffprobeTextController,
+    required this.onPickFfmpegPath,
+    required this.onPickFfprobePath,
   });
 
   final ToolPathsController controller;
   final TextEditingController ffmpegTextController;
   final TextEditingController ffprobeTextController;
+  final Future<void> Function() onPickFfmpegPath;
+  final Future<void> Function() onPickFfprobePath;
 
   @override
   Widget build(BuildContext context) {
@@ -309,6 +505,7 @@ class _ToolPathsCard extends StatelessWidget {
               controller: ffmpegTextController,
               onChanged: controller.updateManualFfmpegPath,
               onClear: controller.clearManualFfmpegPath,
+              onBrowse: onPickFfmpegPath,
             ),
             const SizedBox(height: 18),
             _ToolField(
@@ -319,6 +516,7 @@ class _ToolPathsCard extends StatelessWidget {
               controller: ffprobeTextController,
               onChanged: controller.updateManualFfprobePath,
               onClear: controller.clearManualFfprobePath,
+              onBrowse: onPickFfprobePath,
             ),
           ],
         ),
@@ -336,6 +534,7 @@ class _ToolField extends StatelessWidget {
     required this.controller,
     required this.onChanged,
     required this.onClear,
+    required this.onBrowse,
   });
 
   final String label;
@@ -345,6 +544,7 @@ class _ToolField extends StatelessWidget {
   final TextEditingController controller;
   final ValueChanged<String> onChanged;
   final VoidCallback onClear;
+  final Future<void> Function() onBrowse;
 
   @override
   Widget build(BuildContext context) {
@@ -400,10 +600,20 @@ class _ToolField extends StatelessWidget {
             labelText: 'Manual override',
             hintText: 'Leave empty to use auto-detection',
             border: const OutlineInputBorder(),
-            suffixIcon: IconButton(
-              onPressed: controller.text.isEmpty ? null : onClear,
-              icon: const Icon(Icons.close),
-              tooltip: 'Clear override',
+            suffixIcon: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                IconButton(
+                  onPressed: onBrowse,
+                  icon: const Icon(Icons.folder_open),
+                  tooltip: 'Browse for executable',
+                ),
+                IconButton(
+                  onPressed: controller.text.isEmpty ? null : onClear,
+                  icon: const Icon(Icons.close),
+                  tooltip: 'Clear override',
+                ),
+              ],
             ),
           ),
         ),
@@ -424,6 +634,247 @@ class _ToolField extends StatelessWidget {
           ),
         ],
       ],
+    );
+  }
+}
+
+class _SourceSelectionCard extends StatelessWidget {
+  const _SourceSelectionCard({
+    required this.controller,
+    required this.onPickSource,
+  });
+
+  final ConversionSetupController controller;
+  final Future<void> Function() onPickSource;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final sourceLabel = switch (controller.sourceType) {
+      SourceType.file => 'Single file',
+      SourceType.directory => 'Directory',
+    };
+
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Source selection',
+              style: theme.textTheme.titleLarge?.copyWith(
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+            const SizedBox(height: 12),
+            Text(
+              'Choose one file or one folder. Directory mode only scans the selected folder’s top level.',
+              style: theme.textTheme.bodyLarge,
+            ),
+            const SizedBox(height: 16),
+            SegmentedButton<SourceType>(
+              segments: const [
+                ButtonSegment(
+                  value: SourceType.file,
+                  icon: Icon(Icons.audio_file),
+                  label: Text('Single file'),
+                ),
+                ButtonSegment(
+                  value: SourceType.directory,
+                  icon: Icon(Icons.folder_copy),
+                  label: Text('Directory'),
+                ),
+              ],
+              selected: {controller.sourceType},
+              onSelectionChanged: (selection) {
+                controller.setSourceType(selection.first);
+              },
+            ),
+            const SizedBox(height: 20),
+            FilledButton.icon(
+              onPressed: onPickSource,
+              icon: const Icon(Icons.attach_file),
+              label: Text('Choose $sourceLabel'),
+            ),
+            const SizedBox(height: 14),
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: const Color(0xFFF7F8FA),
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: theme.colorScheme.outlineVariant),
+              ),
+              child: Text(
+                controller.selectedSourcePath ?? 'No source selected yet.',
+                style: theme.textTheme.bodyMedium,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _OutputModeCard extends StatelessWidget {
+  const _OutputModeCard({required this.controller});
+
+  final ConversionSetupController controller;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Output placement',
+              style: theme.textTheme.titleLarge?.copyWith(
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+            const SizedBox(height: 12),
+            SegmentedButton<OutputMode>(
+              segments: const [
+                ButtonSegment(
+                  value: OutputMode.sameFolderSuffix,
+                  icon: Icon(Icons.drive_file_rename_outline),
+                  label: Text('Same folder + suffix'),
+                ),
+                ButtonSegment(
+                  value: OutputMode.resolveSubdirectory,
+                  icon: Icon(Icons.create_new_folder),
+                  label: Text('for_resolve subdir'),
+                ),
+              ],
+              selected: {controller.outputMode},
+              onSelectionChanged: (selection) {
+                controller.setOutputMode(selection.first);
+              },
+            ),
+            const SizedBox(height: 12),
+            Text(
+              controller.outputMode == OutputMode.sameFolderSuffix
+                  ? 'Example: clip-for_resolve.mov'
+                  : 'Example: for_resolve/clip.mov',
+              style: theme.textTheme.bodyMedium,
+            ),
+            const SizedBox(height: 12),
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: const Color(0xFFF7F8FA),
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: theme.colorScheme.outlineVariant),
+              ),
+              child: Text(
+                _buildOutputPreview(controller),
+                style: theme.textTheme.bodyMedium,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  String _buildOutputPreview(ConversionSetupController controller) {
+    final sourcePath = controller.selectedSourcePath;
+    final baseName = sourcePath == null
+        ? 'source_name'
+        : path.basenameWithoutExtension(sourcePath);
+
+    final extension = controller.sourceType == SourceType.file ? '.wav or .mov' : '.wav / .mov';
+
+    return switch (controller.outputMode) {
+      OutputMode.sameFolderSuffix =>
+        'Preview: $baseName-for_resolve$extension in the same folder.',
+      OutputMode.resolveSubdirectory =>
+        'Preview: for_resolve/$baseName$extension in a new subdirectory.',
+    };
+  }
+}
+
+class _TrimCard extends StatelessWidget {
+  const _TrimCard({
+    required this.controller,
+    required this.startTimeTextController,
+    required this.endTimeTextController,
+  });
+
+  final ConversionSetupController controller;
+  final TextEditingController startTimeTextController;
+  final TextEditingController endTimeTextController;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Trim controls',
+              style: theme.textTheme.titleLarge?.copyWith(
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+            const SizedBox(height: 12),
+            Text(
+              'Start and end time are both optional. Accepted formats: SS, MM:SS, HH:MM:SS, HH:MM:SS.mmm.',
+              style: theme.textTheme.bodyLarge,
+            ),
+            const SizedBox(height: 16),
+            TextField(
+              controller: startTimeTextController,
+              onChanged: controller.updateStartTimeText,
+              decoration: InputDecoration(
+                labelText: 'Start time',
+                hintText: '00:00:12.500',
+                border: const OutlineInputBorder(),
+                errorText: controller.startTimeError,
+              ),
+            ),
+            const SizedBox(height: 16),
+            TextField(
+              controller: endTimeTextController,
+              onChanged: controller.updateEndTimeText,
+              decoration: InputDecoration(
+                labelText: 'End time',
+                hintText: '00:01:02.000',
+                border: const OutlineInputBorder(),
+                errorText: controller.endTimeError,
+              ),
+            ),
+            const SizedBox(height: 14),
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: const Color(0xFFF7F8FA),
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: theme.colorScheme.outlineVariant),
+              ),
+              child: Text(
+                controller.hasValidTrimRange
+                    ? 'Trim inputs are valid. Leave both blank for a full conversion.'
+                    : 'Fix the trim inputs before running a conversion.',
+                style: theme.textTheme.bodyMedium,
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

@@ -1,5 +1,5 @@
 name: resolve_file_converter
-description: "A new Flutter project."
+description: "Flutter app to convert ffmpeg supported audio and video files to formats well supported by DaVinci Resolve"
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
@@ -32,7 +32,7 @@ dependencies:
     sdk: flutter
 
   cupertino_icons: ^1.0.8
-  file_picker: ^10.3.2
+  file_picker: ^11.0.2
   path: ^1.9.1
   shared_preferences: ^2.5.3
 
