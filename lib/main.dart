@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/widgets.dart';
+import 'package:path/path.dart' as p;
 import 'package:window_manager/window_manager.dart';
 
 import 'app/app.dart';
@@ -20,6 +21,18 @@ Future<void> main() async {
       center: true,
       title: 'Resolve File Converter',
     );
+
+    final iconPath = p.join(
+      p.dirname(Platform.resolvedExecutable),
+      'data',
+      'flutter_assets',
+      'assets',
+      'icons',
+      'resolve_file_converter-256.png',
+    );
+    if (File(iconPath).existsSync()) {
+      unawaited(windowManager.setIcon(iconPath));
+    }
 
     unawaited(
       windowManager.waitUntilReadyToShow(windowOptions, () async {
