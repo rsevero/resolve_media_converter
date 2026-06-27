@@ -30,3 +30,12 @@ Run the usual Flutter checks:
 flutter analyze
 flutter test
 ```
+
+## Manual verification checklist
+
+- Test one audio file conversion
+- Test one video file conversion
+- Test one mixed folder with unsupported files present
+- Test both output placement modes
+- Test start only, end only, both, and blank trim inputs
+- Test auto-detected tool paths and manual overrides for `ffmpeg` and `ffprobe`

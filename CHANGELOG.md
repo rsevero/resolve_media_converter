@@ -21,6 +21,7 @@ The format is based on Keep a Changelog, and this project follows Semantic Versi
 - Conversion progress and per-file results UI for the initial runnable pipeline.
 - Service-level test coverage for source resolution, probe classification, output path generation, and ffmpeg argument building.
 - Additional widget coverage for source/output workflow controls.
+- Edge-case tests for trim parsing, tool-path precedence, output collision handling, and conversion button readiness.
 
 ### Changed
 
@@ -28,6 +29,7 @@ The format is based on Keep a Changelog, and this project follows Semantic Versi
 - Updated dependencies to support file picking, path handling, and shared preferences.
 - Switched Linux file and directory picking to `file_selector`.
 - Improved the run/results copy, surfaced media type in result rows, and refreshed the README with current app behavior and requirements.
+- Tightened the Convert action so it only enables when source selection, trim validation, and tool validation are all ready.
 
 ### Fixed
 

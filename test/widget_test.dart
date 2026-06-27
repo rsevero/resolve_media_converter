@@ -48,4 +48,17 @@ void main() {
     await tester.pump();
     expect(find.textContaining('for_resolve/source_name'), findsOneWidget);
   });
+
+  testWidgets('convert button stays disabled without valid setup', (tester) async {
+    SharedPreferences.setMockInitialValues(const {});
+
+    await tester.pumpWidget(const ResolveMediaConverterApp());
+    await tester.pumpAndSettle();
+
+    final convertButton = tester.widget<FilledButton>(
+      find.widgetWithText(FilledButton, 'Convert'),
+    );
+
+    expect(convertButton.onPressed, isNull);
+  });
 }

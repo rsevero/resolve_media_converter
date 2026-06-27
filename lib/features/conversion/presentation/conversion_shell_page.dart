@@ -127,7 +127,11 @@ class _ConversionShellPageState extends State<ConversionShellPage> {
                               controller: _conversionRunController,
                               onRunConversion: _runConversion,
                               canRun: !_toolPathsController.isLoading &&
-                                  !_conversionRunController.isRunning,
+                                  !_conversionRunController.isRunning &&
+                                  _conversionSetupController.hasSourceSelection &&
+                                  _conversionSetupController.hasValidTrimRange &&
+                                  _toolPathsController.ffmpegValidation.isValid &&
+                                  _toolPathsController.ffprobeValidation.isValid,
                             ),
                           ),
                         ],
