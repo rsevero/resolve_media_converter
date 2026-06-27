@@ -6,7 +6,7 @@ This project now includes GitHub Actions release workflows similar in spirit to 
 
 - Linux bundle as `.tar.gz`
 - Windows bundle as `.zip`
-- macOS `.app` bundle as `.zip`
+- macOS DMG package
 
 These workflows build the existing Flutter desktop outputs and upload them to the GitHub release for a tag.
 
@@ -33,11 +33,11 @@ git push origin v1.0.0
 
 - `resolve-file-converter-<version>-linux-x86_64.tar.gz`
 - `resolve-file-converter-<version>-windows-x64.zip`
-- `resolve-file-converter-<version>-macos-x64.zip`
+- `resolve-file-converter-<version>-macos-universal.dmg`
 
 ## Notes
 
 - These are release bundles, not signed installers
 - Linux does not yet build AppImage or Flatpak
 - Windows does not yet build an installer executable
-- macOS does not yet produce a signed or notarized app
+- macOS now builds a DMG package, but it is not yet signed or notarized

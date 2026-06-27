@@ -1,0 +1,19 @@
+{
+  "title": "Resolve File Converter",
+  "icon": "build/dmg_icon.icns",
+  "background": "builtin-arrow",
+  "contents": [
+    {
+      "x": 180,
+      "y": 170,
+      "type": "file",
+      "path": "build/macos/Build/Products/Release/resolve_file_converter.app"
+    },
+    {
+      "x": 420,
+      "y": 170,
+      "type": "link",
+      "path": "/Applications"
+    }
+  ]
+}

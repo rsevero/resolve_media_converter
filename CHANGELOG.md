@@ -41,6 +41,7 @@ The format is based on Keep a Changelog, and this project follows Semantic Versi
 - Run startup log cleanup in the background so app launch does not wait for it.
 - Skip conversion for files that are already in accepted Resolve-friendly formats such as CFR H.264 MP4, ProRes, DNxHR, BRAW/CinemaDNG, and 48 kHz / 24-bit WAV/BWF.
 - Switch the default converted video container from `MOV` to `MXF`.
+- macOS release workflow now builds a DMG package similar to the Mapiah Codemagic flow.
 
 ### Fixed
 

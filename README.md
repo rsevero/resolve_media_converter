@@ -37,6 +37,7 @@ flutter test
 
 - GitHub Actions release workflows are available for Linux, Windows, and macOS desktop builds
 - Tag releases with `vX.Y.Z` to trigger automated release bundles
+- macOS releases are packaged as DMG files
 - See `packaging/README.md` for the release flow and asset naming
 
 ## Manual verification checklist

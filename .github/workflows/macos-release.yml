@@ -16,7 +16,7 @@ permissions:
 
 jobs:
   build:
-    name: Build macOS App
+    name: Build macOS DMG
     runs-on: macos-13
     steps:
       - name: Checkout code
@@ -48,16 +48,51 @@ jobs:
           flutter pub get
           flutter build macos --release
 
-      - name: Archive macOS app
+      - name: Create DMG
         shell: bash
         run: |
           set -euo pipefail
           TAG="${{ github.event_name == 'push' && github.ref_name || github.event.inputs.test_tag }}"
           TAG_NUMBER="${TAG#v}"
-          ASSET_NAME="resolve-file-converter-${TAG_NUMBER}-macos-x64.zip"
-          ditto -c -k --sequesterRsrc --keepParent build/macos/Build/Products/Release/resolve_file_converter.app "$ASSET_NAME"
+          ASSET_NAME="resolve-file-converter-${TAG_NUMBER}-macos-universal.dmg"
+          APP_PATH="build/macos/Build/Products/Release/resolve_file_converter.app"
+
+          ICONSET_DIR="build/dmg_icon.iconset"
+          ICNS_PATH="build/dmg_icon.icns"
+          rm -rf "$ICONSET_DIR" "$ICNS_PATH"
+          mkdir -p "$ICONSET_DIR"
+
+          cp macos/Runner/Assets.xcassets/AppIcon.appiconset/app_icon_16.png "$ICONSET_DIR/icon_16x16.png"
+          cp macos/Runner/Assets.xcassets/AppIcon.appiconset/app_icon_32.png "$ICONSET_DIR/icon_16x16@2x.png"
+          cp macos/Runner/Assets.xcassets/AppIcon.appiconset/app_icon_32.png "$ICONSET_DIR/icon_32x32.png"
+          cp macos/Runner/Assets.xcassets/AppIcon.appiconset/app_icon_64.png "$ICONSET_DIR/icon_32x32@2x.png"
+          cp macos/Runner/Assets.xcassets/AppIcon.appiconset/app_icon_128.png "$ICONSET_DIR/icon_128x128.png"
+          cp macos/Runner/Assets.xcassets/AppIcon.appiconset/app_icon_256.png "$ICONSET_DIR/icon_128x128@2x.png"
+          cp macos/Runner/Assets.xcassets/AppIcon.appiconset/app_icon_256.png "$ICONSET_DIR/icon_256x256.png"
+          cp macos/Runner/Assets.xcassets/AppIcon.appiconset/app_icon_512.png "$ICONSET_DIR/icon_256x256@2x.png"
+          cp macos/Runner/Assets.xcassets/AppIcon.appiconset/app_icon_512.png "$ICONSET_DIR/icon_512x512.png"
+          cp macos/Runner/Assets.xcassets/AppIcon.appiconset/app_icon_1024.png "$ICONSET_DIR/icon_512x512@2x.png"
+
+          iconutil -c icns "$ICONSET_DIR" -o "$ICNS_PATH"
+
+          mkdir -p "$APP_PATH/Contents/Resources"
+          cp "$ICNS_PATH" "$APP_PATH/Contents/Resources/AppIcon.icns"
+          /usr/libexec/PlistBuddy -c "Set :CFBundleIconFile AppIcon" "$APP_PATH/Contents/Info.plist" 2>/dev/null \
+            || /usr/libexec/PlistBuddy -c "Add :CFBundleIconFile string AppIcon" "$APP_PATH/Contents/Info.plist"
+
+          brew install node
+          npm install -g appdmg
+          appdmg appdmg.json "$ASSET_NAME"
+
           echo "TAG=$TAG" >> "$GITHUB_ENV"
           echo "ASSET_NAME=$ASSET_NAME" >> "$GITHUB_ENV"
+
+      - name: Verify DMG
+        shell: bash
+        run: |
+          set -euo pipefail
+          chmod +x scripts/verify_dmg.sh
+          scripts/verify_dmg.sh "$ASSET_NAME"
 
       - name: Publish Release
         env:
