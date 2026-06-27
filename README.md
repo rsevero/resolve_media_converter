@@ -33,6 +33,12 @@ flutter analyze
 flutter test
 ```
 
+## Releases
+
+- GitHub Actions release workflows are available for Linux, Windows, and macOS desktop builds
+- Tag releases with `vX.Y.Z` to trigger automated release bundles
+- See `packaging/README.md` for the release flow and asset naming
+
 ## Manual verification checklist
 
 - Test one audio file conversion

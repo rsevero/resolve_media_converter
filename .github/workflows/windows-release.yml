@@ -1,0 +1,84 @@
+name: Resolve File Converter Windows Release
+
+on:
+  push:
+    tags:
+      - 'v[0-9]+.[0-9]+.[0-9]+'
+  workflow_dispatch:
+    inputs:
+      test_tag:
+        description: 'Simulated tag for testing'
+        required: false
+        default: 'v1.0.0-test'
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: Build Windows Bundle
+    runs-on: windows-latest
+    steps:
+      - name: Validate tag (automatic runs only)
+        if: github.event_name == 'push'
+        shell: bash
+        run: |
+          set -euo pipefail
+          TAG=${GITHUB_REF#refs/tags/}
+          if [[ ! "$TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "::error::Invalid tag format: $TAG (must match vX.Y.Z)"
+            exit 1
+          fi
+
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event_name == 'push' && github.ref || '' }}
+          fetch-depth: 0
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          flutter-version: 3.44.4
+
+      - name: Build Windows release
+        shell: bash
+        run: |
+          set -euo pipefail
+          flutter --version
+          flutter config --enable-windows-desktop
+          flutter pub get
+          flutter build windows --release
+
+      - name: Archive Windows bundle
+        shell: pwsh
+        run: |
+          $tag = if ("${{ github.event_name }}" -eq "push") { "${{ github.ref_name }}" } else { "${{ github.event.inputs.test_tag }}" }
+          $tagNumber = $tag.Substring(1)
+          $assetName = "resolve-file-converter-$tagNumber-windows-x64.zip"
+          Compress-Archive -Path "build/windows/x64/runner/Release/*" -DestinationPath $assetName -Force
+          "TAG=$tag" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+          "ASSET_NAME=$assetName" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+
+      - name: Publish Release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          TITLE="Resolve File Converter $TAG"
+          GH_TOKEN=$GITHUB_TOKEN
+          unset GITHUB_TOKEN
+          gh auth login --with-token <<< "$GH_TOKEN"
+
+          if ! gh release view "$TAG" >/dev/null 2>&1; then
+            if ! gh release create "$TAG" \
+              --title "$TITLE" \
+              --notes "Release $TAG" \
+              "$ASSET_NAME"; then
+              echo "Release creation failed (likely already exists); continuing to upload."
+            fi
+          fi
+
+          gh release upload "$TAG" --clobber "$ASSET_NAME"

@@ -25,6 +25,7 @@ The format is based on Keep a Changelog, and this project follows Semantic Versi
 - Cross-platform desktop window sizing through Flutter using `window_manager`.
 - Persistence for the last directory used in file, folder, and executable picker flows.
 - Persistent per-file conversion logs with stored `ffmpeg` output and an in-app viewer from the results list.
+- GitHub Actions release workflows for Linux, Windows, and macOS desktop bundles.
 
 ### Changed
 
