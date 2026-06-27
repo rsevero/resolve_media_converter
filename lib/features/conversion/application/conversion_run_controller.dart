@@ -4,6 +4,7 @@ import '../../../models/conversion_enums.dart';
 import '../../../models/conversion_request.dart';
 import '../../../models/conversion_result.dart';
 import '../../../services/conversion_execution_service.dart';
+import '../../../services/conversion_log_service.dart';
 import '../../../services/ffmpeg_command_service.dart';
 import '../../../services/media_probe_service.dart';
 import '../../../services/output_path_service.dart';
@@ -16,19 +17,22 @@ class ConversionRunController extends ChangeNotifier {
     OutputPathService? outputPathService,
     FfmpegCommandService? ffmpegCommandService,
     ConversionExecutionService? conversionExecutionService,
+    ConversionLogService? conversionLogService,
   })  : _sourceResolutionService =
             sourceResolutionService ?? const SourceResolutionService(),
         _mediaProbeService = mediaProbeService ?? const MediaProbeService(),
         _outputPathService = outputPathService ?? const OutputPathService(),
         _ffmpegCommandService = ffmpegCommandService ?? const FfmpegCommandService(),
         _conversionExecutionService =
-            conversionExecutionService ?? const ConversionExecutionService();
+            conversionExecutionService ?? const ConversionExecutionService(),
+        _conversionLogService = conversionLogService ?? const ConversionLogService();
 
   final SourceResolutionService _sourceResolutionService;
   final MediaProbeService _mediaProbeService;
   final OutputPathService _outputPathService;
   final FfmpegCommandService _ffmpegCommandService;
   final ConversionExecutionService _conversionExecutionService;
+  final ConversionLogService _conversionLogService;
 
   bool _isRunning = false;
   String? _currentItem;
@@ -78,6 +82,14 @@ class ConversionRunController extends ChangeNotifier {
           status: ConversionStatus.skipped,
           mediaKind: MediaKind.unsupported,
           errorMessage: 'Skipped because it is not a regular file.',
+          logFilePath: await _conversionLogService.writeLog(
+            sourcePath: skippedPath,
+            destinationPath: '',
+            status: ConversionStatus.skipped,
+            mediaKind: MediaKind.unsupported,
+            errorMessage: 'Skipped because it is not a regular file.',
+            note: 'Top-level directory scanning ignores non-file entries.',
+          ),
         ),
     ];
 
@@ -109,6 +121,14 @@ class ConversionRunController extends ChangeNotifier {
             status: ConversionStatus.skipped,
             mediaKind: MediaKind.unsupported,
             errorMessage: probeResult.errorMessage ?? 'Unsupported file.',
+            logFilePath: await _conversionLogService.writeLog(
+              sourcePath: sourcePath,
+              destinationPath: '',
+              status: ConversionStatus.skipped,
+              mediaKind: MediaKind.unsupported,
+              errorMessage: probeResult.errorMessage ?? 'Unsupported file.',
+              note: 'ffprobe did not report a supported audio or video stream.',
+            ),
           ),
         );
         _completedJobs++;

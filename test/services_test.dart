@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:resolve_file_converter/models/conversion_enums.dart';
 import 'package:resolve_file_converter/models/conversion_request.dart';
+import 'package:resolve_file_converter/services/conversion_log_service.dart';
 import 'package:resolve_file_converter/services/ffmpeg_command_service.dart';
 import 'package:resolve_file_converter/services/media_probe_service.dart';
 import 'package:resolve_file_converter/services/output_path_service.dart';
@@ -99,6 +100,35 @@ void main() {
       expect(job.arguments, containsAllInOrder(['-c:v', 'dnxhd']));
       expect(job.arguments, containsAllInOrder(['-profile:v', 'dnxhr_hq']));
       expect(job.arguments.last, '/tmp/source-for_resolve.mov');
+    });
+  });
+
+  group('ConversionLogService', () {
+    test('writes a persistent log file with command output', () async {
+      final tempDir = await Directory.systemTemp.createTemp('resolve-logs');
+      addTearDown(() => tempDir.delete(recursive: true));
+      final service = ConversionLogService(rootDirectoryPath: tempDir.path);
+
+      final logFilePath = await service.writeLog(
+        sourcePath: '/tmp/source.mov',
+        destinationPath: '/tmp/source-for_resolve.mov',
+        status: ConversionStatus.success,
+        mediaKind: MediaKind.video,
+        ffmpegPath: '/usr/bin/ffmpeg',
+        arguments: const ['-i', '/tmp/source.mov', '/tmp/source-for_resolve.mov'],
+        exitCode: 0,
+        stdoutOutput: 'frame=100',
+        stderrOutput: 'ffmpeg banner',
+      );
+
+      expect(logFilePath, isNotNull);
+
+      final content = await File(logFilePath!).readAsString();
+      expect(content, contains('Status: success'));
+      expect(content, contains('FFmpeg: /usr/bin/ffmpeg'));
+      expect(content, contains('frame=100'));
+      expect(content, contains('ffmpeg banner'));
+      expect(File(logFilePath).existsSync(), isTrue);
     });
   });
 }

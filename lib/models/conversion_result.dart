@@ -8,6 +8,7 @@ class ConversionResult {
     required this.mediaKind,
     this.errorMessage,
     this.elapsed,
+    this.logFilePath,
   });
 
   final String sourcePath;
@@ -16,4 +17,5 @@ class ConversionResult {
   final MediaKind mediaKind;
   final String? errorMessage;
   final Duration? elapsed;
+  final String? logFilePath;
 }

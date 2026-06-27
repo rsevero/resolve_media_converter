@@ -10,6 +10,7 @@ Flutter desktop app for converting `ffmpeg`-readable audio and video files into 
 - Directory mode scans only the selected folder's top level
 - Output can stay in the same folder with a `-for_resolve` suffix or go into a `for_resolve` subdirectory
 - Optional start and end trim fields can limit the conversion range
+- Each converted or skipped file gets its own persistent log file, including captured `ffmpeg` output when `ffmpeg` runs
 
 ## Requirements
 
@@ -39,3 +40,4 @@ flutter test
 - Test both output placement modes
 - Test start only, end only, both, and blank trim inputs
 - Test auto-detected tool paths and manual overrides for `ffmpeg` and `ffprobe`
+- Open a completed item log from the results list and confirm the stored command/output details

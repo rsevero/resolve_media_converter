@@ -1074,9 +1074,82 @@ class _ResultRow extends StatelessWidget {
               style: theme.textTheme.bodySmall?.copyWith(color: statusColor),
             ),
           ],
+          if (result.logFilePath != null) ...[
+            const SizedBox(height: 10),
+            Align(
+              alignment: Alignment.centerLeft,
+              child: TextButton.icon(
+                onPressed: () => _showLogDialog(context),
+                icon: const Icon(Icons.article_outlined),
+                label: const Text('View log'),
+              ),
+            ),
+          ],
         ],
       ),
     );
+  }
+
+  Future<void> _showLogDialog(BuildContext context) async {
+    final messenger = ScaffoldMessenger.of(context);
+    final logFilePath = result.logFilePath;
+
+    if (logFilePath == null) {
+      messenger.showSnackBar(
+        const SnackBar(content: Text('No log file is available for this item.')),
+      );
+      return;
+    }
+
+    try {
+      final logText = await File(logFilePath).readAsString();
+      if (!context.mounted) {
+        return;
+      }
+
+      await showDialog<void>(
+        context: context,
+        builder: (dialogContext) {
+          return AlertDialog(
+            title: Text('Conversion log • ${path.basename(result.sourcePath)}'),
+            content: SizedBox(
+              width: 720,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  SelectableText(
+                    logFilePath,
+                    style: Theme.of(dialogContext).textTheme.bodySmall,
+                  ),
+                  const SizedBox(height: 12),
+                  Flexible(
+                    child: SingleChildScrollView(
+                      child: SelectableText(
+                        logText,
+                        style: Theme.of(dialogContext).textTheme.bodySmall?.copyWith(
+                          fontFamily: 'monospace',
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(dialogContext).pop(),
+                child: const Text('Close'),
+              ),
+            ],
+          );
+        },
+      );
+    } on FileSystemException {
+      messenger.showSnackBar(
+        SnackBar(content: Text('Could not read log file: $logFilePath')),
+      );
+    }
   }
 
   String _mediaKindLabel(MediaKind mediaKind) {
