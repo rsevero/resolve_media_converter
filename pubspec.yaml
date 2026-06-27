@@ -36,6 +36,7 @@ dependencies:
   file_selector: ^1.0.3
   path: ^1.9.1
   shared_preferences: ^2.5.3
+  window_manager: ^0.5.1
 
 dev_dependencies:
   flutter_test:
