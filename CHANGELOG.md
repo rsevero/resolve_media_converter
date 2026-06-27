@@ -50,3 +50,4 @@ The format is based on Keep a Changelog, and this project follows Semantic Versi
 
 - Removed the accidentally committed nested duplicate Flutter project from the repository.
 - Bundled `libpcre3` for Linux AppImage builds so the packaged `gdk-pixbuf-query-loaders` step can generate the pixbuf loader cache on GitHub Actions.
+- Narrowed the Linux AppImage loader-cache environment so `gdk-pixbuf-query-loaders` can use bundled `libpcre` without loading an incompatible bundled `glibc` on newer GitHub runners.

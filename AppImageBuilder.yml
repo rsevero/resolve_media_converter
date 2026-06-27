@@ -74,13 +74,22 @@ AppDir:
   after_bundle: |
     set -e
     APPDIR_PATH="$(pwd)/AppDir"
+    mkdir -p "$APPDIR_PATH/usr/lib/x86_64-linux-gnu"
     mkdir -p "$APPDIR_PATH/usr/lib/x86_64-linux-gnu/gdk-pixbuf-2.0/2.10.0"
+
+    # Keep libpcre available to the bundled gdk-pixbuf-query-loaders without
+    # exposing the whole bundled /lib directory, which can pull in an older
+    # libc and break on newer GitHub runners.
+    if [ -d "$APPDIR_PATH/lib/x86_64-linux-gnu" ]; then
+      find "$APPDIR_PATH/lib/x86_64-linux-gnu" -maxdepth 1 -name 'libpcre.so.3*' -exec cp -a {} "$APPDIR_PATH/usr/lib/x86_64-linux-gnu/" \;
+    fi
+
     query_loader_bin=$(find "$APPDIR_PATH" -type f -name gdk-pixbuf-query-loaders | head -n1)
     if [ -z "$query_loader_bin" ]; then
       echo "gdk-pixbuf-query-loaders not found in AppDir" >&2
       exit 1
     fi
-    LD_LIBRARY_PATH="$APPDIR_PATH/usr/lib/x86_64-linux-gnu:$APPDIR_PATH/lib/x86_64-linux-gnu:${LD_LIBRARY_PATH:-}" \
+    LD_LIBRARY_PATH="$APPDIR_PATH/usr/lib/x86_64-linux-gnu:${LD_LIBRARY_PATH:-}" \
       "$query_loader_bin" \
       > "$APPDIR_PATH/usr/lib/x86_64-linux-gnu/gdk-pixbuf-2.0/2.10.0/loaders.cache"
   files:
