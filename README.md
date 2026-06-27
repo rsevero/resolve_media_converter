@@ -1,7 +1,32 @@
 # resolve_file_converter
 
-Flutter app to convert ffmpeg supported audio and video files to formats well supported by DaVinci Resolve .
+Flutter desktop app for converting `ffmpeg`-readable audio and video files into formats that are easier to edit in DaVinci Resolve.
 
-## Getting Started
+## Current behavior
 
-You need ffmepg isntalled on your machine to use resolve_file_converter.
+- Audio sources convert to `48 kHz / 24-bit PCM WAV`
+- Video sources convert to `MOV` with `DNxHR HQ` video and `48 kHz PCM` audio
+- Input can be a single file or one directory
+- Directory mode scans only the selected folder's top level
+- Output can stay in the same folder with a `-for_resolve` suffix or go into a `for_resolve` subdirectory
+- Optional start and end trim fields can limit the conversion range
+
+## Requirements
+
+- `ffmpeg` must be installed on the machine
+- `ffprobe` must be installed on the machine
+- The app can auto-detect both tools, but the user can also configure each path manually
+
+## Linux note
+
+- Linux file and directory picking uses `file_selector`
+- If native picker integration still fails on your session, the app falls back to manual path entry
+
+## Development
+
+Run the usual Flutter checks:
+
+```bash
+flutter analyze
+flutter test
+```

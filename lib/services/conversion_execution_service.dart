@@ -26,6 +26,7 @@ class ConversionExecutionService {
           sourcePath: job.sourcePath,
           destinationPath: job.destinationPath,
           status: ConversionStatus.success,
+          mediaKind: job.mediaKind,
           elapsed: stopwatch.elapsed,
         );
       }
@@ -34,6 +35,7 @@ class ConversionExecutionService {
         sourcePath: job.sourcePath,
         destinationPath: job.destinationPath,
         status: ConversionStatus.failed,
+        mediaKind: job.mediaKind,
         errorMessage: _firstLine(result.stderr) ?? 'ffmpeg failed.',
         elapsed: stopwatch.elapsed,
       );
@@ -43,6 +45,7 @@ class ConversionExecutionService {
         sourcePath: job.sourcePath,
         destinationPath: job.destinationPath,
         status: ConversionStatus.failed,
+        mediaKind: job.mediaKind,
         errorMessage: error.message,
         elapsed: stopwatch.elapsed,
       );

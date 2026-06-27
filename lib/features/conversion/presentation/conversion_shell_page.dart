@@ -420,8 +420,8 @@ class _HeaderBanner extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           Text(
-            'Desktop shell ready for Steps 1 to 4: structure, models, '
-            'settings persistence, and ffmpeg / ffprobe detection.',
+            'Desktop converter for Resolve-ready WAV and DNxHR outputs, with '
+            'tool setup, source selection, trimming, and batch progress.',
             style: theme.textTheme.titleMedium?.copyWith(
               color: Colors.white.withValues(alpha: 0.92),
             ),
@@ -435,7 +435,9 @@ class _HeaderBanner extends StatelessWidget {
               ),
               const SizedBox(width: 10),
               Text(
-                isLoading ? 'Checking tools and stored settings...' : 'Ready for the next implementation block',
+                isLoading
+                    ? 'Checking tools and stored settings...'
+                    : 'Ready to scan, probe, and convert media.',
                 style: theme.textTheme.bodyLarge?.copyWith(color: Colors.white),
               ),
             ],
@@ -943,7 +945,7 @@ class _ExecutionCard extends StatelessWidget {
             ],
             if (controller.results.isEmpty)
               Text(
-                'The next implementation block is live: scan the selected source, probe with ffprobe, build output jobs, and run ffmpeg sequentially.',
+                'Ready to validate tools, scan the selected source, probe media, build output jobs, and run ffmpeg sequentially.',
                 style: theme.textTheme.bodyLarge,
               )
             else
@@ -1005,6 +1007,11 @@ class _ResultRow extends StatelessWidget {
               ),
             ],
           ),
+          const SizedBox(height: 6),
+          Text(
+            'Type: ${_mediaKindLabel(result.mediaKind)}',
+            style: theme.textTheme.bodySmall,
+          ),
           if (result.destinationPath.isNotEmpty) ...[
             const SizedBox(height: 6),
             Text(result.destinationPath, style: theme.textTheme.bodySmall),
@@ -1019,5 +1026,13 @@ class _ResultRow extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  String _mediaKindLabel(MediaKind mediaKind) {
+    return switch (mediaKind) {
+      MediaKind.audio => 'Audio',
+      MediaKind.video => 'Video',
+      MediaKind.unsupported => 'Unsupported',
+    };
   }
 }

@@ -79,5 +79,26 @@ void main() {
       expect(job.arguments, containsAllInOrder(['-c:a', 'pcm_s24le']));
       expect(job.arguments.last, '/tmp/source-for_resolve.wav');
     });
+
+    test('builds video conversion arguments', () {
+      final request = ConversionRequest(
+        sourcePath: '/tmp/source.mov',
+        sourceType: SourceType.file,
+        outputMode: OutputMode.sameFolderSuffix,
+        ffmpegPath: 'ffmpeg',
+        ffprobePath: 'ffprobe',
+      );
+
+      final job = const FfmpegCommandService().buildJob(
+        request: request,
+        sourcePath: '/tmp/source.mov',
+        destinationPath: '/tmp/source-for_resolve.mov',
+        mediaKind: MediaKind.video,
+      );
+
+      expect(job.arguments, containsAllInOrder(['-c:v', 'dnxhd']));
+      expect(job.arguments, containsAllInOrder(['-profile:v', 'dnxhr_hq']));
+      expect(job.arguments.last, '/tmp/source-for_resolve.mov');
+    });
   });
 }

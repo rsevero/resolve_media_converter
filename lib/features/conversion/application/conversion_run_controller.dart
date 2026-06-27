@@ -76,6 +76,7 @@ class ConversionRunController extends ChangeNotifier {
           sourcePath: skippedPath,
           destinationPath: '',
           status: ConversionStatus.skipped,
+          mediaKind: MediaKind.unsupported,
           errorMessage: 'Skipped because it is not a regular file.',
         ),
     ];
@@ -106,6 +107,7 @@ class ConversionRunController extends ChangeNotifier {
             sourcePath: sourcePath,
             destinationPath: '',
             status: ConversionStatus.skipped,
+            mediaKind: MediaKind.unsupported,
             errorMessage: probeResult.errorMessage ?? 'Unsupported file.',
           ),
         );

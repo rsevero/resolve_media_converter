@@ -5,6 +5,7 @@ class ConversionResult {
     required this.sourcePath,
     required this.destinationPath,
     required this.status,
+    required this.mediaKind,
     this.errorMessage,
     this.elapsed,
   });
@@ -12,6 +13,7 @@ class ConversionResult {
   final String sourcePath;
   final String destinationPath;
   final ConversionStatus status;
+  final MediaKind mediaKind;
   final String? errorMessage;
   final Duration? elapsed;
 }

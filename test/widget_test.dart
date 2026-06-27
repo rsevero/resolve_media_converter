@@ -32,4 +32,20 @@ void main() {
 
     expect(find.text('End time must be greater than start time.'), findsOneWidget);
   });
+
+  testWidgets('source and output controls switch labels', (tester) async {
+    SharedPreferences.setMockInitialValues(const {});
+
+    await tester.pumpWidget(const ResolveMediaConverterApp());
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Directory'));
+    await tester.pump();
+    expect(find.text('Choose Directory'), findsOneWidget);
+
+    await tester.ensureVisible(find.text('for_resolve subdir'));
+    await tester.tap(find.text('for_resolve subdir'));
+    await tester.pump();
+    expect(find.textContaining('for_resolve/source_name'), findsOneWidget);
+  });
 }
