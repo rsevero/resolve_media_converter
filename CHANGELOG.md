@@ -44,6 +44,7 @@ The format is based on Keep a Changelog, and this project follows Semantic Versi
 - macOS release workflow now builds a DMG package similar to the Mapiah Codemagic flow.
 - Linux release workflow now also builds an AppImage package similar to the Mapiah release flow.
 - Windows release workflow now builds an installable `.exe` package similar to the Mapiah release flow.
+- Wired the shared `resolve_file_converter-icon.png` asset into Windows, macOS, and Linux packaging icons.
 
 ### Fixed
 

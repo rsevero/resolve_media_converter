@@ -31,12 +31,12 @@ script: |
   mkdir -p AppDir/usr/share/icons/hicolor/32x32/apps
   mkdir -p AppDir/usr/share/icons/hicolor/16x16/apps
 
-  cp macos/Runner/Assets.xcassets/AppIcon.appiconset/app_icon_512.png AppDir/usr/share/icons/hicolor/512x512/apps/resolve_file_converter.png
-  cp macos/Runner/Assets.xcassets/AppIcon.appiconset/app_icon_256.png AppDir/usr/share/icons/hicolor/256x256/apps/resolve_file_converter.png
-  cp macos/Runner/Assets.xcassets/AppIcon.appiconset/app_icon_128.png AppDir/usr/share/icons/hicolor/128x128/apps/resolve_file_converter.png
-  cp macos/Runner/Assets.xcassets/AppIcon.appiconset/app_icon_64.png AppDir/usr/share/icons/hicolor/64x64/apps/resolve_file_converter.png
-  cp macos/Runner/Assets.xcassets/AppIcon.appiconset/app_icon_32.png AppDir/usr/share/icons/hicolor/32x32/apps/resolve_file_converter.png
-  cp macos/Runner/Assets.xcassets/AppIcon.appiconset/app_icon_16.png AppDir/usr/share/icons/hicolor/16x16/apps/resolve_file_converter.png
+  cp assets/icons/resolve_file_converter-512.png AppDir/usr/share/icons/hicolor/512x512/apps/resolve_file_converter.png
+  cp assets/icons/resolve_file_converter-256.png AppDir/usr/share/icons/hicolor/256x256/apps/resolve_file_converter.png
+  cp assets/icons/resolve_file_converter-128.png AppDir/usr/share/icons/hicolor/128x128/apps/resolve_file_converter.png
+  cp assets/icons/resolve_file_converter-64.png AppDir/usr/share/icons/hicolor/64x64/apps/resolve_file_converter.png
+  cp assets/icons/resolve_file_converter-32.png AppDir/usr/share/icons/hicolor/32x32/apps/resolve_file_converter.png
+  cp assets/icons/resolve_file_converter-16.png AppDir/usr/share/icons/hicolor/16x16/apps/resolve_file_converter.png
 
   mkdir -p AppDir/usr/share/applications
   cp packaging/linux/appimage/resolve_file_converter.desktop AppDir/usr/share/applications/
