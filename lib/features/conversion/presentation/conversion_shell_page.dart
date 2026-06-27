@@ -177,6 +177,7 @@ class _ConversionShellPageState extends State<ConversionShellPage> {
     }
 
     await _conversionRunController.run(request);
+    _conversionSetupController.setSelectedSourcePath(null);
   }
 
   void _syncTextControllers() {
