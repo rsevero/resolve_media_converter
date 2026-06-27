@@ -42,6 +42,82 @@ void main() {
 
       expect(result.mediaKind, MediaKind.video);
     });
+
+    test('recognizes accepted H.264 MP4 with constant frame rate', () {
+      const json = '''
+      {
+        "format":{"format_name":"mov,mp4,m4a,3gp,3g2,mj2"},
+        "streams":[
+          {
+            "codec_type":"video",
+            "codec_name":"h264",
+            "avg_frame_rate":"24000/1001",
+            "r_frame_rate":"24000/1001"
+          },
+          {"codec_type":"audio","codec_name":"aac"}
+        ]
+      }
+      ''';
+
+      final result = const MediaProbeService().parseProbeOutput(
+        sourcePath: '/tmp/clip.mp4',
+        jsonOutput: json,
+      );
+
+      expect(result.mediaKind, MediaKind.video);
+      expect(result.isAcceptedForResolve, isTrue);
+      expect(result.acceptedFormatLabel, 'H.264 MP4 (constant frame rate)');
+    });
+
+    test('recognizes accepted 48 kHz / 24-bit WAV', () {
+      const json = '''
+      {
+        "format":{"format_name":"wav"},
+        "streams":[
+          {
+            "codec_type":"audio",
+            "codec_name":"pcm_s24le",
+            "sample_rate":"48000",
+            "bits_per_sample":24
+          }
+        ]
+      }
+      ''';
+
+      final result = const MediaProbeService().parseProbeOutput(
+        sourcePath: '/tmp/clip.wav',
+        jsonOutput: json,
+      );
+
+      expect(result.mediaKind, MediaKind.audio);
+      expect(result.isAcceptedForResolve, isTrue);
+      expect(result.acceptedFormatLabel, '48 kHz / 24-bit WAV/BWF');
+    });
+
+    test('does not accept variable frame rate h264 mp4', () {
+      const json = '''
+      {
+        "format":{"format_name":"mov,mp4,m4a,3gp,3g2,mj2"},
+        "streams":[
+          {
+            "codec_type":"video",
+            "codec_name":"h264",
+            "avg_frame_rate":"24000/1001",
+            "r_frame_rate":"30000/1001"
+          }
+        ]
+      }
+      ''';
+
+      final result = const MediaProbeService().parseProbeOutput(
+        sourcePath: '/tmp/clip.mp4',
+        jsonOutput: json,
+      );
+
+      expect(result.mediaKind, MediaKind.video);
+      expect(result.isAcceptedForResolve, isFalse);
+      expect(result.acceptedFormatLabel, isNull);
+    });
   });
 
   group('OutputPathService', () {

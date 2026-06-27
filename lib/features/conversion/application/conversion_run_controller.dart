@@ -136,6 +136,32 @@ class ConversionRunController extends ChangeNotifier {
         continue;
       }
 
+      if (probeResult.isAcceptedForResolve) {
+        final acceptedFormatLabel =
+            probeResult.acceptedFormatLabel ?? 'already accepted by Resolve';
+        results.add(
+          ConversionResult(
+            sourcePath: sourcePath,
+            destinationPath: sourcePath,
+            status: ConversionStatus.skipped,
+            mediaKind: probeResult.mediaKind,
+            errorMessage: 'Skipped because it is already in an accepted format: $acceptedFormatLabel.',
+            logFilePath: await _conversionLogService.writeLog(
+              sourcePath: sourcePath,
+              destinationPath: sourcePath,
+              status: ConversionStatus.skipped,
+              mediaKind: probeResult.mediaKind,
+              errorMessage:
+                  'Skipped because it is already in an accepted format: $acceptedFormatLabel.',
+              note: 'No conversion was run because the source is already Resolve-friendly.',
+            ),
+          ),
+        );
+        _completedJobs++;
+        notifyListeners();
+        continue;
+      }
+
       final destinationPath = await _outputPathService.buildDestinationPath(
         sourcePath: sourcePath,
         mediaKind: probeResult.mediaKind,
