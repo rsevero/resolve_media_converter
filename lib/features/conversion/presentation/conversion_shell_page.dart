@@ -22,6 +22,7 @@ class ConversionShellPage extends StatefulWidget {
 }
 
 class _ConversionShellPageState extends State<ConversionShellPage> {
+  late final AppSettingsService _appSettingsService;
   late final ToolPathsController _toolPathsController;
   late final ConversionSetupController _conversionSetupController;
   late final ConversionRunController _conversionRunController;
@@ -29,16 +30,18 @@ class _ConversionShellPageState extends State<ConversionShellPage> {
   late final TextEditingController _ffprobeTextController;
   late final TextEditingController _startTimeTextController;
   late final TextEditingController _endTimeTextController;
+  String? _lastUsedDirectory;
 
   @override
   void initState() {
     super.initState();
+    _appSettingsService = AppSettingsService();
     _ffmpegTextController = TextEditingController();
     _ffprobeTextController = TextEditingController();
     _startTimeTextController = TextEditingController();
     _endTimeTextController = TextEditingController();
     _toolPathsController = ToolPathsController(
-      settingsService: AppSettingsService(),
+      settingsService: _appSettingsService,
       toolDetectionService: const ToolDetectionService(),
     )..addListener(_syncTextControllers);
     _conversionSetupController = ConversionSetupController()
@@ -46,6 +49,7 @@ class _ConversionShellPageState extends State<ConversionShellPage> {
     _conversionRunController = ConversionRunController();
 
     _toolPathsController.load();
+    _loadLastUsedDirectory();
   }
 
   @override
@@ -219,6 +223,7 @@ class _ConversionShellPageState extends State<ConversionShellPage> {
           'Enter the full path to the ffmpeg executable.',
     );
     if (filePath != null) {
+      await _rememberPickedPath(filePath, isDirectory: false);
       await _toolPathsController.updateManualFfmpegPath(filePath);
     }
   }
@@ -232,6 +237,7 @@ class _ConversionShellPageState extends State<ConversionShellPage> {
           'Enter the full path to the ffprobe executable.',
     );
     if (filePath != null) {
+      await _rememberPickedPath(filePath, isDirectory: false);
       await _toolPathsController.updateManualFfprobePath(filePath);
     }
   }
@@ -247,6 +253,12 @@ class _ConversionShellPageState extends State<ConversionShellPage> {
               'Enter the full path to the media file you want to convert.',
         ),
       );
+      if (_conversionSetupController.selectedSourcePath != null) {
+        await _rememberPickedPath(
+          _conversionSetupController.selectedSourcePath!,
+          isDirectory: false,
+        );
+      }
       return;
     }
 
@@ -258,6 +270,9 @@ class _ConversionShellPageState extends State<ConversionShellPage> {
           'Enter the full path to the folder you want to scan.',
     );
     _conversionSetupController.setSelectedSourcePath(directoryPath);
+    if (directoryPath != null) {
+      await _rememberPickedPath(directoryPath, isDirectory: true);
+    }
   }
 
   Future<String?> _pickFilePath({
@@ -267,11 +282,15 @@ class _ConversionShellPageState extends State<ConversionShellPage> {
   }) async {
     try {
       if (Platform.isLinux) {
-        return await _pickFilePathWithFileSelector(dialogTitle: dialogTitle);
+        return await _pickFilePathWithFileSelector(
+          dialogTitle: dialogTitle,
+          initialDirectory: _lastUsedDirectory,
+        );
       }
 
       final result = await FilePicker.pickFiles(
         dialogTitle: dialogTitle,
+        initialDirectory: _lastUsedDirectory,
       );
       return result?.files.singleOrNull?.path;
     } catch (error) {
@@ -290,11 +309,15 @@ class _ConversionShellPageState extends State<ConversionShellPage> {
   }) async {
     try {
       if (Platform.isLinux) {
-        return await getDirectoryPath(confirmButtonText: dialogTitle);
+        return await getDirectoryPath(
+          confirmButtonText: dialogTitle,
+          initialDirectory: _lastUsedDirectory,
+        );
       }
 
       return await FilePicker.getDirectoryPath(
         dialogTitle: dialogTitle,
+        initialDirectory: _lastUsedDirectory,
       );
     } catch (error) {
       _showPickerFallbackNotice(error);
@@ -385,11 +408,34 @@ class _ConversionShellPageState extends State<ConversionShellPage> {
 
   Future<String?> _pickFilePathWithFileSelector({
     required String dialogTitle,
+    String? initialDirectory,
   }) async {
     final file = await openFile(
       confirmButtonText: dialogTitle,
+      initialDirectory: initialDirectory,
     );
     return file?.path;
+  }
+
+  Future<void> _loadLastUsedDirectory() async {
+    final lastUsedDirectory = await _appSettingsService.loadLastUsedDirectory();
+    if (!mounted) {
+      _lastUsedDirectory = lastUsedDirectory;
+      return;
+    }
+
+    setState(() {
+      _lastUsedDirectory = lastUsedDirectory;
+    });
+  }
+
+  Future<void> _rememberPickedPath(
+    String selectedPath, {
+    required bool isDirectory,
+  }) async {
+    final directoryPath = isDirectory ? selectedPath : path.dirname(selectedPath);
+    _lastUsedDirectory = directoryPath;
+    await _appSettingsService.saveLastUsedDirectory(directoryPath);
   }
 }
 

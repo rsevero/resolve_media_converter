@@ -5,6 +5,7 @@ import '../models/tool_paths_settings.dart';
 class AppSettingsService {
   static const _ffmpegPathKey = 'tool_paths.ffmpeg';
   static const _ffprobePathKey = 'tool_paths.ffprobe';
+  static const _lastUsedDirectoryKey = 'picker.last_used_directory';
 
   Future<ToolPathsSettings> loadToolPathsSettings() async {
     final preferences = await SharedPreferences.getInstance();
@@ -30,6 +31,23 @@ class AppSettingsService {
       await preferences.remove(_ffprobePathKey);
     } else {
       await preferences.setString(_ffprobePathKey, ffprobePath);
+    }
+  }
+
+  Future<String?> loadLastUsedDirectory() async {
+    final preferences = await SharedPreferences.getInstance();
+    final value = preferences.getString(_lastUsedDirectoryKey)?.trim();
+    return value == null || value.isEmpty ? null : value;
+  }
+
+  Future<void> saveLastUsedDirectory(String? directoryPath) async {
+    final preferences = await SharedPreferences.getInstance();
+    final value = directoryPath?.trim();
+
+    if (value == null || value.isEmpty) {
+      await preferences.remove(_lastUsedDirectoryKey);
+    } else {
+      await preferences.setString(_lastUsedDirectoryKey, value);
     }
   }
 }

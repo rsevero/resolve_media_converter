@@ -61,4 +61,15 @@ void main() {
 
     expect(convertButton.onPressed, isNull);
   });
+
+  testWidgets('last used directory is restored on startup', (tester) async {
+    SharedPreferences.setMockInitialValues(const {
+      'picker.last_used_directory': '/tmp/resolve_media',
+    });
+
+    await tester.pumpWidget(const ResolveMediaConverterApp());
+    await tester.pumpAndSettle();
+
+    expect(find.textContaining('No source selected yet.'), findsOneWidget);
+  });
 }

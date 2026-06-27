@@ -23,6 +23,7 @@ The format is based on Keep a Changelog, and this project follows Semantic Versi
 - Additional widget coverage for source/output workflow controls.
 - Edge-case tests for trim parsing, tool-path precedence, output collision handling, and conversion button readiness.
 - Cross-platform desktop window sizing through Flutter using `window_manager`.
+- Persistence for the last directory used in file, folder, and executable picker flows.
 
 ### Changed
 
@@ -32,6 +33,7 @@ The format is based on Keep a Changelog, and this project follows Semantic Versi
 - Improved the run/results copy, surfaced media type in result rows, and refreshed the README with current app behavior and requirements.
 - Tightened the Convert action so it only enables when source selection, trim validation, and tool validation are all ready.
 - Replaced the ineffective runner-specific startup sizing attempt with a Flutter-managed desktop window configuration.
+- Reused the last-picked directory as the initial location for future source and tool picker dialogs.
 
 ### Fixed
 
