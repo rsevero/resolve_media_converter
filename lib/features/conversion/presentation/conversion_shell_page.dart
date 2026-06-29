@@ -178,6 +178,7 @@ class _ConversionShellPageState extends State<ConversionShellPage> {
 
     await _conversionRunController.run(request);
     _conversionSetupController.setSelectedSourcePath(null);
+    _conversionSetupController.resetTrimValues();
   }
 
   void _syncTextControllers() {

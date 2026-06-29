@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:resolve_file_converter/features/conversion/application/conversion_setup_controller.dart';
 import 'package:resolve_file_converter/models/conversion_enums.dart';
 import 'package:resolve_file_converter/models/tool_paths_settings.dart';
 import 'package:resolve_file_converter/services/output_path_service.dart';
@@ -27,6 +28,45 @@ void main() {
       expect(service.parse('aa:10').errorMessage, isNotNull);
       expect(service.parse('00:10.1234').errorMessage, isNotNull);
       expect(service.parse('10:99').errorMessage, isNotNull);
+    });
+  });
+
+  group('ConversionSetupController', () {
+    test('resetTrimValues clears trim text and validation errors', () {
+      final controller = ConversionSetupController();
+
+      controller.updateStartTimeText('00:00:10');
+      controller.updateEndTimeText('00:00:05');
+
+      expect(controller.startTimeText, '00:00:10');
+      expect(controller.endTimeText, '00:00:05');
+      expect(controller.endTimeError, 'End time must be greater than start time.');
+
+      controller.resetTrimValues();
+
+      expect(controller.startTimeText, isEmpty);
+      expect(controller.endTimeText, isEmpty);
+      expect(controller.startTimeError, isNull);
+      expect(controller.endTimeError, isNull);
+      expect(controller.hasValidTrimRange, isTrue);
+    });
+
+    test('buildRequest uses full conversion after trim reset', () {
+      final controller = ConversionSetupController();
+
+      controller.setSelectedSourcePath('/tmp/source.mov');
+      controller.updateStartTimeText('00:00:03');
+      controller.updateEndTimeText('00:00:09');
+      controller.resetTrimValues();
+
+      final request = controller.buildRequest(
+        ffmpegPath: '/usr/bin/ffmpeg',
+        ffprobePath: '/usr/bin/ffprobe',
+      );
+
+      expect(request, isNotNull);
+      expect(request!.startTime, isNull);
+      expect(request.endTime, isNull);
     });
   });
 

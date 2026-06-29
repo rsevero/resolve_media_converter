@@ -56,6 +56,14 @@ class ConversionSetupController extends ChangeNotifier {
     notifyListeners();
   }
 
+  void resetTrimValues() {
+    _startTimeText = '';
+    _endTimeText = '';
+    _startTimeError = null;
+    _endTimeError = null;
+    notifyListeners();
+  }
+
   void updateStartTimeText(String value) {
     _startTimeText = value;
     _validateTrimRange();

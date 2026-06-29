@@ -13,7 +13,8 @@ The format is based on Keep a Changelog, and this project follows Semantic Versi
 
 ### Fixed
 
-- Pass `-ss` (start time) both before and after `-i` so seeking is fast, frame-accurate, and `-to` is treated as an end timestamp rather than a duration.
+- Pass `-ss` (start time) both before and after `-i` on ffmpeg so seeking is fast, frame-accurate, and `-to` is treated as an end timestamp rather than a duration.
+- Reset the trim start and end fields after each conversion run so the next conversion starts from a full-range state.
 
 ## v1.0.0
 
