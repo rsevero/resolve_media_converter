@@ -157,7 +157,7 @@ void main() {
         mediaKind: MediaKind.audio,
       );
 
-      expect(job.arguments, containsAllInOrder(['-ss', '00:00:05.000']));
+      expect(job.arguments, containsAllInOrder(['-ss', '00:00:05.000', '-i', '/tmp/source.wav', '-ss', '00:00:05.000']));
       expect(job.arguments, containsAllInOrder(['-to', '00:00:12.000']));
       expect(job.arguments, containsAllInOrder(['-c:a', 'pcm_s24le']));
       expect(job.arguments.last, '/tmp/source-for_resolve.wav');

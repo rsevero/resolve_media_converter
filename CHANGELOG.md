@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 The format is based on Keep a Changelog, and this project follows Semantic Versioning.
 
+## v1.0.2
+
+### Fixed
+
+- Pass `-ss` (start time) both before and after `-i` so seeking is fast, frame-accurate, and `-to` is treated as an end timestamp rather than a duration.
+
 ## v1.0.1
 
 ### Changed

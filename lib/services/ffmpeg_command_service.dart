@@ -22,6 +22,10 @@ class FfmpegCommandService {
 
     arguments.addAll(['-i', sourcePath]);
 
+    if (request.startTime != null) {
+      arguments.addAll(['-ss', _formatDuration(request.startTime!)]);
+    }
+
     if (request.endTime != null) {
       arguments.addAll(['-to', _formatDuration(request.endTime!)]);
     }
