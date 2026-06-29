@@ -131,13 +131,13 @@ workflows:
           script: |
             set -e
             TITLE="Resolve File Converter $RELEASE_TAG"
+            if [ -z "${GITHUB_TOKEN:-}" ]; then
+              echo "ERROR: GITHUB_TOKEN is not set. Check the resolve_file_converter_github_token variable group in Codemagic."
+              exit 1
+            fi
 
-            GH_TOKEN=$GITHUB_TOKEN
-            unset GITHUB_TOKEN
-            gh auth login --with-token <<< "$GH_TOKEN"
-
-            if ! gh release view "$RELEASE_TAG" >/dev/null 2>&1; then
-              if ! gh release create "$RELEASE_TAG" \
+            if ! GH_TOKEN="$GITHUB_TOKEN" gh release view "$RELEASE_TAG" >/dev/null 2>&1; then
+              if ! GH_TOKEN="$GITHUB_TOKEN" gh release create "$RELEASE_TAG" \
                 --title "$TITLE" \
                 --notes "Release $RELEASE_TAG" \
                 "$INSTALLER"; then
@@ -145,6 +145,6 @@ workflows:
               fi
             fi
 
-            gh release upload "$RELEASE_TAG" \
+            GH_TOKEN="$GITHUB_TOKEN" gh release upload "$RELEASE_TAG" \
               --clobber \
               "$INSTALLER"
