@@ -1064,6 +1064,13 @@ class _ResultRow extends StatelessWidget {
             'Type: ${_mediaKindLabel(result.mediaKind)}',
             style: theme.textTheme.bodySmall,
           ),
+          if (result.elapsed != null) ...[
+            const SizedBox(height: 6),
+            Text(
+              'Conversion time: ${_formatElapsed(result.elapsed!)}',
+              style: theme.textTheme.bodySmall,
+            ),
+          ],
           if (result.destinationPath.isNotEmpty) ...[
             const SizedBox(height: 6),
             Text(result.destinationPath, style: theme.textTheme.bodySmall),
@@ -1119,6 +1126,13 @@ class _ResultRow extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  if (result.elapsed != null) ...[
+                    Text(
+                      'Conversion time: ${_formatElapsed(result.elapsed!)}',
+                      style: Theme.of(dialogContext).textTheme.bodyMedium,
+                    ),
+                    const SizedBox(height: 12),
+                  ],
                   SelectableText(
                     logFilePath,
                     style: Theme.of(dialogContext).textTheme.bodySmall,
@@ -1159,5 +1173,23 @@ class _ResultRow extends StatelessWidget {
       MediaKind.video => 'Video',
       MediaKind.unsupported => 'Unsupported',
     };
+  }
+
+  String _formatElapsed(Duration duration) {
+    final hours = duration.inHours;
+    final minutes = duration.inMinutes % 60;
+    final seconds = duration.inSeconds % 60;
+    final milliseconds = duration.inMilliseconds % 1000;
+
+    if (hours > 0) {
+      return '${hours.toString().padLeft(2, '0')}:'
+          '${minutes.toString().padLeft(2, '0')}:'
+          '${seconds.toString().padLeft(2, '0')}.'
+          '${milliseconds.toString().padLeft(3, '0')}';
+    }
+
+    return '${minutes.toString().padLeft(2, '0')}:'
+        '${seconds.toString().padLeft(2, '0')}.'
+        '${milliseconds.toString().padLeft(3, '0')}';
   }
 }

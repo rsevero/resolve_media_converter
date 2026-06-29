@@ -10,6 +10,7 @@ The format is based on Keep a Changelog, and this project follows Semantic Versi
 
 - Show the newest completed conversion result at the top of the run history instead of appending it to the bottom.
 - Select DNxHR HQ / yuv422p for 8-bit sources and DNxHR HQX / yuv422p10le for 10-bit sources, detected automatically via ffprobe.
+- Show each file's conversion time directly in the main results list, in addition to the detailed log dialog.
 
 ### Fixed
 
