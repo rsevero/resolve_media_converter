@@ -4,7 +4,7 @@ All notable changes to this project will be documented in this file.
 
 The format is based on Keep a Changelog, and this project follows Semantic Versioning.
 
-## v1.0.1
+## v1.0.1 - release 2026-06-29
 
 ### Changed
 
@@ -18,7 +18,7 @@ The format is based on Keep a Changelog, and this project follows Semantic Versi
 - Pass `-ss` (start time) both before and after `-i` on ffmpeg so seeking is fast, frame-accurate, and `-to` is treated as an end timestamp rather than a duration.
 - Reset the trim start and end fields after each conversion run so the next conversion starts from a full-range state.
 
-## v1.0.0
+## v1.0.0 - release 2026-06-27
 
 ### Added
 
