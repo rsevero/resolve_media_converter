@@ -4,17 +4,16 @@ All notable changes to this project will be documented in this file.
 
 The format is based on Keep a Changelog, and this project follows Semantic Versioning.
 
-## v1.0.2
-
-### Fixed
-
-- Pass `-ss` (start time) both before and after `-i` so seeking is fast, frame-accurate, and `-to` is treated as an end timestamp rather than a duration.
-
 ## v1.0.1
 
 ### Changed
 
 - Show the newest completed conversion result at the top of the run history instead of appending it to the bottom.
+- Select DNxHR HQ / yuv422p for 8-bit sources and DNxHR HQX / yuv422p10le for 10-bit sources, detected automatically via ffprobe.
+
+### Fixed
+
+- Pass `-ss` (start time) both before and after `-i` so seeking is fast, frame-accurate, and `-to` is treated as an end timestamp rather than a duration.
 
 ## v1.0.0
 

@@ -60,6 +60,10 @@ class MediaProbeService {
 
     final hasVideo = streams.any((stream) => stream['codec_type'] == 'video');
     final hasAudio = streams.any((stream) => stream['codec_type'] == 'audio');
+    final videoStream = streams.cast<Map<String, dynamic>?>().firstWhere(
+          (stream) => stream?['codec_type'] == 'video',
+          orElse: () => null,
+        );
     final acceptedFormatLabel = _detectAcceptedFormat(
       sourcePath: sourcePath,
       format: format,
@@ -71,6 +75,11 @@ class MediaProbeService {
         : hasAudio
             ? MediaKind.audio
             : MediaKind.unsupported;
+
+    final rawBitDepth = int.tryParse(
+      videoStream?['bits_per_raw_sample']?.toString() ?? '',
+    );
+    final bitDepth = (rawBitDepth != null && rawBitDepth > 0) ? rawBitDepth : null;
 
     return MediaProbeResult(
       sourcePath: sourcePath,
@@ -86,6 +95,7 @@ class MediaProbeService {
           mediaKind == MediaKind.unsupported ? 'No audio or video stream found.' : null,
       isAcceptedForResolve: acceptedFormatLabel != null,
       acceptedFormatLabel: acceptedFormatLabel,
+      bitDepth: bitDepth,
     );
   }
 

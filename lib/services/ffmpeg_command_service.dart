@@ -10,6 +10,7 @@ class FfmpegCommandService {
     required String sourcePath,
     required String destinationPath,
     required MediaKind mediaKind,
+    int? bitDepth,
   }) {
     final arguments = <String>[
       '-hide_banner',
@@ -40,11 +41,14 @@ class FfmpegCommandService {
         destinationPath,
       ]);
     } else {
+      final is10bit = bitDepth != null && bitDepth > 8;
       arguments.addAll([
         '-c:v',
         'dnxhd',
         '-profile:v',
-        'dnxhr_hq',
+        is10bit ? 'dnxhr_hqx' : 'dnxhr_hq',
+        '-pix_fmt',
+        is10bit ? 'yuv422p10le' : 'yuv422p',
         '-c:a',
         'pcm_s24le',
         '-ar',

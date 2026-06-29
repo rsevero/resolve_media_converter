@@ -100,6 +100,24 @@ void main() {
       expect(result.acceptedFormatLabel, '48 kHz / 24-bit WAV/BWF');
     });
 
+    test('reads bit depth from bits_per_raw_sample on video stream', () {
+      const json = '''
+      {
+        "streams":[
+          {"codec_type":"video","codec_name":"h264","bits_per_raw_sample":"10"},
+          {"codec_type":"audio","codec_name":"aac"}
+        ]
+      }
+      ''';
+
+      final result = const MediaProbeService().parseProbeOutput(
+        sourcePath: '/tmp/clip.mp4',
+        jsonOutput: json,
+      );
+
+      expect(result.bitDepth, 10);
+    });
+
     test('does not accept variable frame rate h264 mp4', () {
       const json = '''
       {
@@ -163,7 +181,51 @@ void main() {
       expect(job.arguments.last, '/tmp/source-for_resolve.wav');
     });
 
-    test('builds video conversion arguments', () {
+    test('builds 8-bit video conversion arguments with DNxHR HQ / yuv422p', () {
+      final request = ConversionRequest(
+        sourcePath: '/tmp/source.mov',
+        sourceType: SourceType.file,
+        outputMode: OutputMode.sameFolderSuffix,
+        ffmpegPath: 'ffmpeg',
+        ffprobePath: 'ffprobe',
+      );
+
+      final job = const FfmpegCommandService().buildJob(
+        request: request,
+        sourcePath: '/tmp/source.mov',
+        destinationPath: '/tmp/source-for_resolve.mxf',
+        mediaKind: MediaKind.video,
+        bitDepth: 8,
+      );
+
+      expect(job.arguments, containsAllInOrder(['-profile:v', 'dnxhr_hq']));
+      expect(job.arguments, containsAllInOrder(['-pix_fmt', 'yuv422p']));
+      expect(job.arguments.last, '/tmp/source-for_resolve.mxf');
+    });
+
+    test('builds 10-bit video conversion arguments with DNxHR HQX / yuv422p10le', () {
+      final request = ConversionRequest(
+        sourcePath: '/tmp/source.mov',
+        sourceType: SourceType.file,
+        outputMode: OutputMode.sameFolderSuffix,
+        ffmpegPath: 'ffmpeg',
+        ffprobePath: 'ffprobe',
+      );
+
+      final job = const FfmpegCommandService().buildJob(
+        request: request,
+        sourcePath: '/tmp/source.mov',
+        destinationPath: '/tmp/source-for_resolve.mxf',
+        mediaKind: MediaKind.video,
+        bitDepth: 10,
+      );
+
+      expect(job.arguments, containsAllInOrder(['-profile:v', 'dnxhr_hqx']));
+      expect(job.arguments, containsAllInOrder(['-pix_fmt', 'yuv422p10le']));
+      expect(job.arguments.last, '/tmp/source-for_resolve.mxf');
+    });
+
+    test('defaults to 8-bit when bitDepth is null', () {
       final request = ConversionRequest(
         sourcePath: '/tmp/source.mov',
         sourceType: SourceType.file,
@@ -179,9 +241,8 @@ void main() {
         mediaKind: MediaKind.video,
       );
 
-      expect(job.arguments, containsAllInOrder(['-c:v', 'dnxhd']));
       expect(job.arguments, containsAllInOrder(['-profile:v', 'dnxhr_hq']));
-      expect(job.arguments.last, '/tmp/source-for_resolve.mxf');
+      expect(job.arguments, containsAllInOrder(['-pix_fmt', 'yuv422p']));
     });
   });
 

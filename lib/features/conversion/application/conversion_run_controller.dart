@@ -173,6 +173,7 @@ class ConversionRunController extends ChangeNotifier {
         sourcePath: sourcePath,
         destinationPath: destinationPath,
         mediaKind: probeResult.mediaKind,
+        bitDepth: probeResult.bitDepth,
       );
 
       final result = await _conversionExecutionService.execute(

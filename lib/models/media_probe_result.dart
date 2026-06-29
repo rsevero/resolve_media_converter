@@ -8,6 +8,7 @@ class MediaProbeResult {
     this.errorMessage,
     this.isAcceptedForResolve = false,
     this.acceptedFormatLabel,
+    this.bitDepth,
   });
 
   final String sourcePath;
@@ -16,4 +17,5 @@ class MediaProbeResult {
   final String? errorMessage;
   final bool isAcceptedForResolve;
   final String? acceptedFormatLabel;
+  final int? bitDepth;
 }
