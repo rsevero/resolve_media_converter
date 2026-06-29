@@ -1,7 +1,6 @@
 {
   "title": "Resolve File Converter",
   "icon": "build/dmg_icon.icns",
-  "background": "builtin-arrow",
   "contents": [
     {
       "x": 180,
