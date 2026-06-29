@@ -4,6 +4,16 @@ All notable changes to this project will be documented in this file.
 
 The format is based on Keep a Changelog, and this project follows Semantic Versioning.
 
+## v1.0.2 - not yet released
+
+### Changed
+
+- Renamed the macOS release artifact from `*-macos-universal.dmg` to `*-macos.dmg` so the published filename matches the actual build output.
+
+### Fixed
+
+- Made the Codemagic macOS release upload step tolerate GitHub release creation races so tagged Linux, Windows, and macOS builds can all publish to the same release reliably.
+
 ## v1.0.1 - release 2026-06-29
 
 ### Changed
@@ -17,7 +27,6 @@ The format is based on Keep a Changelog, and this project follows Semantic Versi
 
 - Pass `-ss` (start time) both before and after `-i` on ffmpeg so seeking is fast, frame-accurate, and `-to` is treated as an end timestamp rather than a duration.
 - Reset the trim start and end fields after each conversion run so the next conversion starts from a full-range state.
-- Made the Codemagic macOS release upload step tolerate GitHub release creation races so tagged Linux, Windows, and macOS builds can all publish to the same release reliably.
 
 ## v1.0.0 - release 2026-06-27
 

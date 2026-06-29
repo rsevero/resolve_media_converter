@@ -32,7 +32,7 @@ workflows:
       - name: Set installer path
         script: |
           set -e
-          export INSTALLER="build/macos/resolve-file-converter-${RELEASE_TAG#v}-macos-universal.dmg"
+          export INSTALLER="build/macos/resolve-file-converter-${RELEASE_TAG#v}-macos.dmg"
           echo "INSTALLER=$INSTALLER" >> "$CM_ENV"
           echo "Defined INSTALLER as: $INSTALLER"
 
@@ -118,7 +118,7 @@ workflows:
             > build/macos/test-logs/unified.log || true
 
     artifacts:
-      - build/macos/resolve-file-converter-*-macos-universal.dmg
+      - build/macos/resolve-file-converter-*-macos.dmg
       - build/macos/test-logs/*
 
     publishing:

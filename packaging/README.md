@@ -39,7 +39,7 @@ git push origin v1.0.0
 - `resolve-file-converter-<version>-linux-x86_64.tar.gz`
 - `resolve-file-converter-<version>-linux-x86_64.AppImage`
 - `resolve-file-converter-<tag>-windows-x64.exe`
-- `resolve-file-converter-<version>-macos-universal.dmg`
+- `resolve-file-converter-<version>-macos.dmg`
 
 ## Notes
 
