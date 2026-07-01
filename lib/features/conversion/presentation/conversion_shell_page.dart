@@ -102,16 +102,6 @@ class _ConversionShellPageState extends State<ConversionShellPage> {
                           ),
                           SizedBox(
                             width: 520,
-                            child: _ToolPathsCard(
-                              controller: _toolPathsController,
-                              ffmpegTextController: _ffmpegTextController,
-                              ffprobeTextController: _ffprobeTextController,
-                              onPickFfmpegPath: _pickFfmpegPath,
-                              onPickFfprobePath: _pickFfprobePath,
-                            ),
-                          ),
-                          SizedBox(
-                            width: 520,
                             child: _OutputModeCard(
                               controller: _conversionSetupController,
                             ),
@@ -136,6 +126,16 @@ class _ConversionShellPageState extends State<ConversionShellPage> {
                                   _conversionSetupController.hasValidTrimRange &&
                                   _toolPathsController.ffmpegValidation.isValid &&
                                   _toolPathsController.ffprobeValidation.isValid,
+                            ),
+                          ),
+                          SizedBox(
+                            width: 1064,
+                            child: _ToolPathsCard(
+                              controller: _toolPathsController,
+                              ffmpegTextController: _ffmpegTextController,
+                              ffprobeTextController: _ffprobeTextController,
+                              onPickFfmpegPath: _pickFfmpegPath,
+                              onPickFfprobePath: _pickFfprobePath,
                             ),
                           ),
                         ],
@@ -520,57 +520,73 @@ class _ToolPathsCard extends StatelessWidget {
     final theme = Theme.of(context);
 
     return Card(
+      elevation: 0,
+      color: const Color(0xFFFBF9F4),
       child: Padding(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Expanded(
-                  child: Text(
-                    'Tool paths',
-                    style: theme.textTheme.titleLarge?.copyWith(
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+        child: Theme(
+          data: theme.copyWith(dividerColor: Colors.transparent),
+          child: ExpansionTile(
+            tilePadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+            childrenPadding: const EdgeInsets.fromLTRB(16, 0, 16, 20),
+            initiallyExpanded: false,
+            collapsedBackgroundColor: Colors.transparent,
+            backgroundColor: Colors.transparent,
+            leading: Icon(
+              Icons.build_outlined,
+              color: theme.colorScheme.onSurfaceVariant,
+            ),
+            title: Text(
+              'Tool paths',
+              style: theme.textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.w600,
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
+            ),
+            subtitle: Text(
+              'Optional overrides for ffmpeg and ffprobe.',
+              style: theme.textTheme.bodyMedium?.copyWith(
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
+            ),
+            trailing: TextButton.icon(
+              onPressed: controller.isLoading ? null : controller.redetectTools,
+              icon: const Icon(Icons.refresh),
+              label: const Text('Re-detect'),
+            ),
+            children: [
+              Align(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  'Auto-detection is available, but you can override ffmpeg '
+                  'and ffprobe independently when needed.',
+                  style: theme.textTheme.bodyMedium,
                 ),
-                TextButton.icon(
-                  onPressed: controller.isLoading ? null : controller.redetectTools,
-                  icon: const Icon(Icons.refresh),
-                  label: const Text('Re-detect'),
-                ),
-              ],
-            ),
-            const SizedBox(height: 8),
-            Text(
-              'Auto-detection is available, but the user can always override '
-              'ffmpeg and ffprobe independently.',
-              style: theme.textTheme.bodyLarge,
-            ),
-            const SizedBox(height: 20),
-            _ToolField(
-              label: 'FFmpeg',
-              detectedPath: controller.detectionResult.detectedFfmpegPath,
-              effectivePath: controller.effectiveFfmpegPath,
-              validation: controller.ffmpegValidation,
-              controller: ffmpegTextController,
-              onChanged: controller.updateManualFfmpegPath,
-              onClear: controller.clearManualFfmpegPath,
-              onBrowse: onPickFfmpegPath,
-            ),
-            const SizedBox(height: 18),
-            _ToolField(
-              label: 'FFprobe',
-              detectedPath: controller.detectionResult.detectedFfprobePath,
-              effectivePath: controller.effectiveFfprobePath,
-              validation: controller.ffprobeValidation,
-              controller: ffprobeTextController,
-              onChanged: controller.updateManualFfprobePath,
-              onClear: controller.clearManualFfprobePath,
-              onBrowse: onPickFfprobePath,
-            ),
-          ],
+              ),
+              const SizedBox(height: 20),
+              _ToolField(
+                label: 'FFmpeg',
+                detectedPath: controller.detectionResult.detectedFfmpegPath,
+                effectivePath: controller.effectiveFfmpegPath,
+                validation: controller.ffmpegValidation,
+                controller: ffmpegTextController,
+                onChanged: controller.updateManualFfmpegPath,
+                onClear: controller.clearManualFfmpegPath,
+                onBrowse: onPickFfmpegPath,
+              ),
+              const SizedBox(height: 18),
+              _ToolField(
+                label: 'FFprobe',
+                detectedPath: controller.detectionResult.detectedFfprobePath,
+                effectivePath: controller.effectiveFfprobePath,
+                validation: controller.ffprobeValidation,
+                controller: ffprobeTextController,
+                onChanged: controller.updateManualFfprobePath,
+                onClear: controller.clearManualFfprobePath,
+                onBrowse: onPickFfprobePath,
+              ),
+            ],
+          ),
         ),
       ),
     );
