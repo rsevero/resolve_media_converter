@@ -107,7 +107,7 @@ class _ConversionShellPageState extends State<ConversionShellPage> {
                             ),
                           ),
                           SizedBox(
-                            width: 520,
+                            width: 1064,
                             child: _TrimCard(
                               controller: _conversionSetupController,
                               startTimeTextController: _startTimeTextController,
@@ -903,26 +903,51 @@ class _TrimCard extends StatelessWidget {
               style: theme.textTheme.bodyLarge,
             ),
             const SizedBox(height: 16),
-            TextField(
-              controller: startTimeTextController,
-              onChanged: controller.updateStartTimeText,
-              decoration: InputDecoration(
-                labelText: 'Start time',
-                hintText: '00:00:12.500',
-                border: const OutlineInputBorder(),
-                errorText: controller.startTimeError,
-              ),
-            ),
-            const SizedBox(height: 16),
-            TextField(
-              controller: endTimeTextController,
-              onChanged: controller.updateEndTimeText,
-              decoration: InputDecoration(
-                labelText: 'End time',
-                hintText: '00:01:02.000',
-                border: const OutlineInputBorder(),
-                errorText: controller.endTimeError,
-              ),
+            LayoutBuilder(
+              builder: (context, constraints) {
+                final useSideBySide = constraints.maxWidth >= 720;
+
+                final startField = TextField(
+                  controller: startTimeTextController,
+                  onChanged: controller.updateStartTimeText,
+                  decoration: InputDecoration(
+                    labelText: 'Start time',
+                    hintText: '00:00:12.500',
+                    border: const OutlineInputBorder(),
+                    errorText: controller.startTimeError,
+                  ),
+                );
+
+                final endField = TextField(
+                  controller: endTimeTextController,
+                  onChanged: controller.updateEndTimeText,
+                  decoration: InputDecoration(
+                    labelText: 'End time',
+                    hintText: '00:01:02.000',
+                    border: const OutlineInputBorder(),
+                    errorText: controller.endTimeError,
+                  ),
+                );
+
+                if (!useSideBySide) {
+                  return Column(
+                    children: [
+                      startField,
+                      const SizedBox(height: 16),
+                      endField,
+                    ],
+                  );
+                }
+
+                return Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(child: startField),
+                    const SizedBox(width: 16),
+                    Expanded(child: endField),
+                  ],
+                );
+              },
             ),
             const SizedBox(height: 14),
             Container(

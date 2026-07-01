@@ -16,7 +16,7 @@ Future<void> main() async {
     await windowManager.ensureInitialized();
 
     const windowOptions = WindowOptions(
-      size: Size(1200, 1300),
+      size: Size(1200, 1100),
       minimumSize: Size(1200, 800),
       center: true,
       title: 'Resolve Media Converter',
