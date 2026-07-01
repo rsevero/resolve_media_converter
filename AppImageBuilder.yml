@@ -4,7 +4,8 @@ script: |
   set -e
   set -x
   rm -rf AppDir || true
-  cp -r build/linux/x64/release/bundle AppDir
+  mkdir -p AppDir/usr/bin
+  cp -r build/linux/x64/release/bundle/* AppDir/usr/bin/
 
   mkdir -p AppDir/usr/share/glib-2.0/schemas
   cp packaging/linux/appimage/schemas/org.gnome.settings-daemon.plugins.xsettings.gschema.xml \

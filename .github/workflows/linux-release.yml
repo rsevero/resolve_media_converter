@@ -82,8 +82,16 @@ jobs:
           appimage-builder --recipe AppImageBuilder.yml --skip-test
           ORIGINAL_APPIMAGE="Resolve_File_Converter-${TAG_NUMBER}-x86_64.AppImage"
           if [[ ! -f "$ORIGINAL_APPIMAGE" ]]; then
-            ORIGINAL_APPIMAGE="$(find . -maxdepth 1 -name '*.AppImage' -print -quit)"
+            mapfile -t GENERATED_APPIMAGES < <(find . -maxdepth 1 -name '*.AppImage' -print | sort)
+            if [[ "${#GENERATED_APPIMAGES[@]}" -ne 1 ]]; then
+              echo "::error::Expected exactly one generated AppImage, found ${#GENERATED_APPIMAGES[@]}"
+              printf '%s\n' "${GENERATED_APPIMAGES[@]}"
+              exit 1
+            fi
+            ORIGINAL_APPIMAGE="${GENERATED_APPIMAGES[0]}"
           fi
+          chmod +x "$ORIGINAL_APPIMAGE"
+          "$ORIGINAL_APPIMAGE" --appimage-version >/dev/null
           APPIMAGE_ASSET_NAME="resolve-file-converter-${TAG_NUMBER}-linux-x86_64.AppImage"
           mv "$ORIGINAL_APPIMAGE" "$APPIMAGE_ASSET_NAME"
           echo "APPIMAGE_ASSET_NAME=$APPIMAGE_ASSET_NAME" >> "$GITHUB_ENV"

@@ -12,6 +12,8 @@ The format is based on Keep a Changelog, and this project follows Semantic Versi
 
 ### Fixed
 
+- Corrected the Linux AppImage `AppDir` layout so the packaged launcher starts the bundled Flutter executable with its adjacent `lib/` and `data/` directories in the expected location.
+- Added a Linux release workflow validation step that checks the generated `.AppImage` with `--appimage-version` before uploading it, preventing broken artifacts from being published.
 - Made the Codemagic macOS release upload step tolerate GitHub release creation races so tagged Linux, Windows, and macOS builds can all publish to the same release reliably.
 - Made the Codemagic macOS dependency-preparation step skip CocoaPods cleanly when `macos/Podfile` is not present, so manual builds can continue to the actual Flutter build.
 - Removed the invalid `appdmg` background setting that made Codemagic macOS DMG packaging fail by treating `builtin-arrow` as a missing file path.
