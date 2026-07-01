@@ -32,7 +32,7 @@ workflows:
       - name: Set installer path
         script: |
           set -e
-          export INSTALLER="build/macos/resolve-file-converter-${RELEASE_TAG#v}-macos.dmg"
+          export INSTALLER="build/macos/resolve-media-converter-${RELEASE_TAG#v}-macos.dmg"
           echo "INSTALLER=$INSTALLER" >> "$CM_ENV"
           echo "Defined INSTALLER as: $INSTALLER"
 
@@ -68,7 +68,7 @@ workflows:
         script: |
           set -e
 
-          APP_PATH="build/macos/Build/Products/Release/resolve_file_converter.app"
+          APP_PATH="build/macos/Build/Products/Release/Resolve Media Converter.app"
           if [ ! -d "$APP_PATH" ]; then
             echo "Expected app not found at $APP_PATH; searching for *.app in build output..."
             APP_PATH="$(find build/macos/Build/Products/Release -maxdepth 1 -name '*.app' -print -quit)"
@@ -118,11 +118,11 @@ workflows:
           set -e
           mkdir -p build/macos/test-logs
           log show --last 5m --style compact \
-            --predicate 'process == "resolve_file_converter" OR process == "Resolve File Converter"' \
+            --predicate 'process == "resolve_file_converter" OR process == "Resolve Media Converter"' \
             > build/macos/test-logs/unified.log || true
 
     artifacts:
-      - build/macos/resolve-file-converter-*-macos.dmg
+      - build/macos/resolve-media-converter-*-macos.dmg
       - build/macos/test-logs/*
 
     publishing:
@@ -130,7 +130,7 @@ workflows:
         - name: Create GitHub Release with GH CLI
           script: |
             set -e
-            TITLE="Resolve File Converter $RELEASE_TAG"
+            TITLE="Resolve Media Converter $RELEASE_TAG"
             if [ -z "${GITHUB_TOKEN:-}" ]; then
               echo "ERROR: GITHUB_TOKEN is not set. Check the resolve_file_converter_github_token variable group in Codemagic."
               exit 1

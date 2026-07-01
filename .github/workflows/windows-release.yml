@@ -1,4 +1,4 @@
-name: Resolve File Converter Windows Release
+name: Resolve Media Converter Windows Release
 
 on:
   push:
@@ -68,7 +68,7 @@ jobs:
 
           for /f "tokens=*" %%i in ('powershell -command "(Get-Item '%BUILD_DIR%\resolve_file_converter.exe').VersionInfo.ProductVersion"') do set APP_VERSION=%%i
 
-          powershell -Command "(Get-Content '%OUTPUT_DIR%\resolve_file_converter.iss') -replace 'C:\\resolve_file_converter\\build\\windows', '%GITHUB_WORKSPACE%\\build\\windows' -replace 'Resolve-File-Converter-v\\{#AppVersion\\}-windows-x64', 'resolve-file-converter-${{ github.event_name == 'push' && github.ref_name || github.event.inputs.test_tag }}-windows-x64' | Set-Content '%OUTPUT_DIR%\resolve_file_converter.iss'"
+          powershell -Command "(Get-Content '%OUTPUT_DIR%\resolve_file_converter.iss') -replace 'C:\\resolve_file_converter\\build\\windows', '%GITHUB_WORKSPACE%\\build\\windows' -replace 'Resolve-Media-Converter-v\\{#AppVersion\\}-windows-x64', 'resolve-media-converter-${{ github.event_name == 'push' && github.ref_name || github.event.inputs.test_tag }}-windows-x64' | Set-Content '%OUTPUT_DIR%\resolve_file_converter.iss'"
 
           "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" "%OUTPUT_DIR%\resolve_file_converter.iss"
 
@@ -76,8 +76,8 @@ jobs:
         shell: pwsh
         run: |
           $tag = if ("${{ github.event_name }}" -eq "push") { "${{ github.ref_name }}" } else { "${{ github.event.inputs.test_tag }}" }
-          $assetName = "resolve-file-converter-$tag-windows-x64.exe"
-          Rename-Item -Path "build/windows-installer/resolve-file-converter-$tag-windows-x64.exe" -NewName $assetName -Force -ErrorAction SilentlyContinue
+          $assetName = "resolve-media-converter-$tag-windows-x64.exe"
+          Rename-Item -Path "build/windows-installer/resolve-media-converter-$tag-windows-x64.exe" -NewName $assetName -Force -ErrorAction SilentlyContinue
           if (-not (Test-Path $assetName)) {
             $generated = Get-ChildItem "build/windows-installer/*.exe" | Select-Object -First 1
             Copy-Item $generated.FullName $assetName -Force
@@ -91,7 +91,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          TITLE="Resolve File Converter $TAG"
+          TITLE="Resolve Media Converter $TAG"
           GH_TOKEN=$GITHUB_TOKEN
           unset GITHUB_TOKEN
           gh auth login --with-token <<< "$GH_TOKEN"

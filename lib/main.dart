@@ -19,7 +19,7 @@ Future<void> main() async {
       size: Size(1200, 1300),
       minimumSize: Size(1200, 800),
       center: true,
-      title: 'Resolve File Converter',
+      title: 'Resolve Media Converter',
     );
 
     final iconPath = p.join(

@@ -46,7 +46,7 @@ AppDir:
   path: ./AppDir
   app_info:
     id: com.example.resolve_file_converter
-    name: Resolve File Converter
+    name: Resolve Media Converter
     version: 1.0.0
     exec: usr/bin/resolve_file_converter
     exec_args: $@

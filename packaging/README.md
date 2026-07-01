@@ -36,10 +36,10 @@ git push origin v1.0.0
 
 ## Produced asset names
 
-- `resolve-file-converter-<version>-linux-x86_64.tar.gz`
-- `resolve-file-converter-<version>-linux-x86_64.AppImage`
-- `resolve-file-converter-<tag>-windows-x64.exe`
-- `resolve-file-converter-<version>-macos.dmg`
+- `resolve-media-converter-<version>-linux-x86_64.tar.gz`
+- `resolve-media-converter-<version>-linux-x86_64.AppImage`
+- `Resolve-Media-Converter-v<version>-windows-x64.exe`
+- `resolve-media-converter-<version>-macos.dmg`
 
 ## Notes
 

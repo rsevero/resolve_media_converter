@@ -8,6 +8,7 @@ The format is based on Keep a Changelog, and this project follows Semantic Versi
 
 ### Changed
 
+- Renamed the app's user-facing product name from `Resolve File Converter` to `Resolve Media Converter` across desktop packaging metadata, installer text, and release artifact names while keeping internal bundle IDs and executable names unchanged.
 - Switched the GitHub Actions Linux release workflow to run on `ubuntu-22.04` and aligned the AppImage package sources with Ubuntu Jammy.
 - Renamed the macOS release artifact from `*-macos-universal.dmg` to `*-macos.dmg` so the published filename matches the actual build output.
 

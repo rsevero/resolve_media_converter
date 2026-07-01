@@ -1,4 +1,4 @@
-name: Resolve File Converter Linux Release
+name: Resolve Media Converter Linux Release
 
 on:
   push:
@@ -72,7 +72,7 @@ jobs:
           set -euo pipefail
           TAG="${{ github.event_name == 'push' && github.ref_name || github.event.inputs.test_tag }}"
           TAG_NUMBER="${TAG#v}"
-          BUNDLE_ASSET_NAME="resolve-file-converter-${TAG_NUMBER}-linux-x86_64.tar.gz"
+          BUNDLE_ASSET_NAME="resolve-media-converter-${TAG_NUMBER}-linux-x86_64.tar.gz"
           tar -C build/linux/x64/release -czf "$BUNDLE_ASSET_NAME" bundle
           echo "TAG=$TAG" >> "$GITHUB_ENV"
           echo "BUNDLE_ASSET_NAME=$BUNDLE_ASSET_NAME" >> "$GITHUB_ENV"
@@ -92,7 +92,7 @@ jobs:
           TAG_NUMBER="${TAG#v}"
           sed -i "/^AppDir:/,/^[^ ]/s/^\( *version: *\).*/\1${TAG_NUMBER}/" AppImageBuilder.yml
           appimage-builder --recipe AppImageBuilder.yml --skip-test
-          ORIGINAL_APPIMAGE="Resolve_File_Converter-${TAG_NUMBER}-x86_64.AppImage"
+          ORIGINAL_APPIMAGE="Resolve_Media_Converter-${TAG_NUMBER}-x86_64.AppImage"
           if [[ ! -f "$ORIGINAL_APPIMAGE" ]]; then
             mapfile -t GENERATED_APPIMAGES < <(find . -maxdepth 1 -name '*.AppImage' -print | sort)
             if [[ "${#GENERATED_APPIMAGES[@]}" -ne 1 ]]; then
@@ -104,7 +104,7 @@ jobs:
           fi
           chmod +x "$ORIGINAL_APPIMAGE"
           "$ORIGINAL_APPIMAGE" --appimage-version >/dev/null
-          APPIMAGE_ASSET_NAME="resolve-file-converter-${TAG_NUMBER}-linux-x86_64.AppImage"
+          APPIMAGE_ASSET_NAME="resolve-media-converter-${TAG_NUMBER}-linux-x86_64.AppImage"
           mv "$ORIGINAL_APPIMAGE" "$APPIMAGE_ASSET_NAME"
           echo "APPIMAGE_ASSET_NAME=$APPIMAGE_ASSET_NAME" >> "$GITHUB_ENV"
 
@@ -114,7 +114,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          TITLE="Resolve File Converter $TAG"
+          TITLE="Resolve Media Converter $TAG"
           GH_TOKEN=$GITHUB_TOKEN
           unset GITHUB_TOKEN
           gh auth login --with-token <<< "$GH_TOKEN"
