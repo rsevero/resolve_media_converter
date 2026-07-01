@@ -48,7 +48,7 @@ AppDir:
     id: com.example.resolve_file_converter
     name: Resolve File Converter
     version: 1.0.0
-    exec: resolve_file_converter
+    exec: usr/bin/resolve_file_converter
     exec_args: $@
   apt:
     arch: amd64
