@@ -55,11 +55,11 @@ AppDir:
     allow_unauthenticated: true
     sources:
       # Keep the bundled GTK/GLib stack aligned with the GitHub Actions
-      # Linux build job, which currently compiles the app on ubuntu-24.04.
-      - sourceline: deb http://archive.ubuntu.com/ubuntu/ noble main restricted universe multiverse
-      - sourceline: deb http://archive.ubuntu.com/ubuntu/ noble-updates main restricted universe multiverse
-      - sourceline: deb http://archive.ubuntu.com/ubuntu/ noble-backports main restricted universe multiverse
-      - sourceline: deb http://security.ubuntu.com/ubuntu noble-security main restricted universe multiverse
+      # Linux build job.
+      - sourceline: deb http://archive.ubuntu.com/ubuntu/ jammy main restricted universe multiverse
+      - sourceline: deb http://archive.ubuntu.com/ubuntu/ jammy-updates main restricted universe multiverse
+      - sourceline: deb http://archive.ubuntu.com/ubuntu/ jammy-backports main restricted universe multiverse
+      - sourceline: deb http://security.ubuntu.com/ubuntu jammy-security main restricted universe multiverse
     include:
       - adwaita-icon-theme
       - gdk-pixbuf2.0-0
@@ -69,8 +69,6 @@ AppDir:
       - libglib2.0-0
       - libgtk-3-0
       - libpcre3
-      - librsvg2-2
-      - librsvg2-common
       - shared-mime-info
     exclude:
       - humanity-icon-theme
