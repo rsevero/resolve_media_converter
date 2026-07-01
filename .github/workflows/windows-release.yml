@@ -58,7 +58,7 @@ jobs:
         shell: bash
         run: |
           mkdir -p build/windows-installer
-          cp packaging/windows/resolve_file_converter.iss build/windows-installer/
+          cp packaging/windows/resolve_media_converter.iss build/windows-installer/
 
       - name: Create Inno Setup installer
         shell: cmd
@@ -66,11 +66,11 @@ jobs:
           set BUILD_DIR=%GITHUB_WORKSPACE%\build\windows\x64\runner\Release
           set OUTPUT_DIR=%GITHUB_WORKSPACE%\build\windows-installer
 
-          for /f "tokens=*" %%i in ('powershell -command "(Get-Item '%BUILD_DIR%\resolve_file_converter.exe').VersionInfo.ProductVersion"') do set APP_VERSION=%%i
+          for /f "tokens=*" %%i in ('powershell -command "(Get-Item '%BUILD_DIR%\resolve_media_converter.exe').VersionInfo.ProductVersion"') do set APP_VERSION=%%i
 
-          powershell -Command "(Get-Content '%OUTPUT_DIR%\resolve_file_converter.iss') -replace 'C:\\resolve_file_converter\\build\\windows', '%GITHUB_WORKSPACE%\\build\\windows' -replace 'Resolve-Media-Converter-v\\{#AppVersion\\}-windows-x64', 'resolve-media-converter-${{ github.event_name == 'push' && github.ref_name || github.event.inputs.test_tag }}-windows-x64' | Set-Content '%OUTPUT_DIR%\resolve_file_converter.iss'"
+          powershell -Command "(Get-Content '%OUTPUT_DIR%\resolve_media_converter.iss') -replace 'C:\\resolve_media_converter\\build\\windows', '%GITHUB_WORKSPACE%\\build\\windows' -replace 'Resolve-Media-Converter-v\\{#AppVersion\\}-windows-x64', 'resolve-media-converter-${{ github.event_name == 'push' && github.ref_name || github.event.inputs.test_tag }}-windows-x64' | Set-Content '%OUTPUT_DIR%\resolve_media_converter.iss'"
 
-          "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" "%OUTPUT_DIR%\resolve_file_converter.iss"
+          "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" "%OUTPUT_DIR%\resolve_media_converter.iss"
 
       - name: Set installer asset name
         shell: pwsh

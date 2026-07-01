@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 The format is based on Keep a Changelog, and this project follows Semantic Versioning.
 
+## Unreleased
+
+### Fixed
+
+- Updated the Windows GitHub release workflow to use the renamed `resolve_media_converter` installer script, executable, and packaging path references so Windows release builds continue to work after the app rename.
+
 ## v1.0.2 - released on 2026-07-01
 
 ### Changed
