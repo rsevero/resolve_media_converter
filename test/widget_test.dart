@@ -15,6 +15,13 @@ void main() {
     expect(find.text('Source selection'), findsOneWidget);
     expect(find.text('Output placement'), findsOneWidget);
     expect(find.text('Trim controls'), findsOneWidget);
+
+    // Tool paths are collapsed behind a disclosure by default; expand it to
+    // reach the FFmpeg/FFprobe fields.
+    await tester.ensureVisible(find.text('Tool paths'));
+    await tester.tap(find.text('Tool paths'));
+    await tester.pumpAndSettle();
+
     expect(find.text('FFmpeg'), findsOneWidget);
     expect(find.text('FFprobe'), findsOneWidget);
   });
