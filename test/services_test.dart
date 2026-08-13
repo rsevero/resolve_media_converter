@@ -143,6 +143,65 @@ void main() {
       expect(result.isAcceptedForResolve, isFalse);
       expect(result.acceptedFormatLabel, isNull);
     });
+
+    test('reads a +90 degree correction from Display Matrix side data', () {
+      const json = '''
+      {
+        "streams":[
+          {
+            "codec_type":"video",
+            "codec_name":"h264",
+            "side_data_list":[
+              {"side_data_type":"Display Matrix","rotation":-90}
+            ]
+          }
+        ]
+      }
+      ''';
+
+      final result = const MediaProbeService().parseProbeOutput(
+        sourcePath: '/tmp/clip.mp4',
+        jsonOutput: json,
+      );
+
+      expect(result.sourceRotationDegrees, 90);
+    });
+
+    test('falls back to the legacy rotate tag when no side data is present', () {
+      const json = '''
+      {
+        "streams":[
+          {
+            "codec_type":"video",
+            "codec_name":"h264",
+            "tags":{"rotate":"180"}
+          }
+        ]
+      }
+      ''';
+
+      final result = const MediaProbeService().parseProbeOutput(
+        sourcePath: '/tmp/clip.mp4',
+        jsonOutput: json,
+      );
+
+      expect(result.sourceRotationDegrees, 180);
+    });
+
+    test('defaults source rotation to 0 when no metadata is present', () {
+      const json = '''
+      {
+        "streams":[{"codec_type":"video","codec_name":"h264"}]
+      }
+      ''';
+
+      final result = const MediaProbeService().parseProbeOutput(
+        sourcePath: '/tmp/clip.mp4',
+        jsonOutput: json,
+      );
+
+      expect(result.sourceRotationDegrees, 0);
+    });
   });
 
   group('OutputPathService', () {
@@ -318,6 +377,67 @@ void main() {
       );
 
       expect(job.arguments, containsAllInOrder(['-vf', 'transpose=1,transpose=1']));
+    });
+
+    test('cancels out a +90 source correction with a -90 user request', () {
+      final request = ConversionRequest(
+        sourcePath: '/tmp/source.mov',
+        sourceType: SourceType.file,
+        outputMode: OutputMode.sameFolderSuffix,
+        ffmpegPath: 'ffmpeg',
+        ffprobePath: 'ffprobe',
+        rotation: VideoRotation.counterClockwise90,
+      );
+
+      final job = const FfmpegCommandService().buildJob(
+        request: request,
+        sourcePath: '/tmp/source.mov',
+        destinationPath: '/tmp/source-for_resolve.mxf',
+        mediaKind: MediaKind.video,
+        sourceRotationDegrees: 90,
+      );
+
+      expect(job.arguments, isNot(contains('-vf')));
+    });
+
+    test('combines source rotation metadata with the user request', () {
+      final request = ConversionRequest(
+        sourcePath: '/tmp/source.mov',
+        sourceType: SourceType.file,
+        outputMode: OutputMode.sameFolderSuffix,
+        ffmpegPath: 'ffmpeg',
+        ffprobePath: 'ffprobe',
+        rotation: VideoRotation.clockwise90,
+      );
+
+      final job = const FfmpegCommandService().buildJob(
+        request: request,
+        sourcePath: '/tmp/source.mov',
+        destinationPath: '/tmp/source-for_resolve.mxf',
+        mediaKind: MediaKind.video,
+        sourceRotationDegrees: 180,
+      );
+
+      expect(job.arguments, containsAllInOrder(['-vf', 'transpose=2']));
+    });
+
+    test('always disables ffmpeg autorotate so rotation is applied exactly once', () {
+      final request = ConversionRequest(
+        sourcePath: '/tmp/source.mov',
+        sourceType: SourceType.file,
+        outputMode: OutputMode.sameFolderSuffix,
+        ffmpegPath: 'ffmpeg',
+        ffprobePath: 'ffprobe',
+      );
+
+      final job = const FfmpegCommandService().buildJob(
+        request: request,
+        sourcePath: '/tmp/source.mov',
+        destinationPath: '/tmp/source-for_resolve.mxf',
+        mediaKind: MediaKind.video,
+      );
+
+      expect(job.arguments, contains('-noautorotate'));
     });
 
     test('ignores rotation for audio jobs', () {

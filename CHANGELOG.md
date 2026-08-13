@@ -9,7 +9,7 @@ The format is based on Keep a Changelog, and this project follows Semantic Versi
 ### Added
 
 - Per-file progress bar showing live conversion percentage, encode speed, and a real-time ETA for the file currently being converted.
-- Rotation option (90°/180°/270°) for video sources, applied by re-encoding the frame with an ffmpeg `transpose` filter rather than just tagging metadata, so orientation is correct regardless of how the destination player or NLE handles rotation tags.
+- Rotation option (90°/180°/270°) for video sources, applied by re-encoding the frame with an ffmpeg `transpose` filter rather than just tagging metadata, so orientation is correct regardless of how the destination player or NLE handles rotation tags. The requested rotation is combined with the source's own rotation metadata (e.g. a file tagged +90° with a -90° rotation requested converts to 0° net rotation) instead of being applied on top of it.
 
 ### Fixed
 

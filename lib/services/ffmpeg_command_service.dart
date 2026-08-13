@@ -11,10 +11,15 @@ class FfmpegCommandService {
     required String destinationPath,
     required MediaKind mediaKind,
     int? bitDepth,
+    int sourceRotationDegrees = 0,
   }) {
     final arguments = <String>[
       '-hide_banner',
       '-y',
+      // We compute the rotation to apply ourselves (source metadata combined
+      // with the user's request), so disable ffmpeg's own implicit
+      // auto-rotation to avoid applying the source's correction twice.
+      '-noautorotate',
     ];
 
     if (request.startTime != null) {
@@ -42,7 +47,9 @@ class FfmpegCommandService {
       ]);
     } else {
       final is10bit = bitDepth != null && bitDepth > 8;
-      final rotationFilter = _rotationFilter(request.rotation);
+      final netRotationDegrees =
+          (sourceRotationDegrees + _rotationDegrees(request.rotation)) % 360;
+      final rotationFilter = _rotationFilter(netRotationDegrees);
       if (rotationFilter != null) {
         arguments.addAll(['-vf', rotationFilter]);
       }
@@ -69,12 +76,21 @@ class FfmpegCommandService {
     );
   }
 
-  String? _rotationFilter(VideoRotation rotation) {
+  int _rotationDegrees(VideoRotation rotation) {
     return switch (rotation) {
-      VideoRotation.none => null,
-      VideoRotation.clockwise90 => 'transpose=1',
-      VideoRotation.rotate180 => 'transpose=1,transpose=1',
-      VideoRotation.counterClockwise90 => 'transpose=2',
+      VideoRotation.none => 0,
+      VideoRotation.clockwise90 => 90,
+      VideoRotation.rotate180 => 180,
+      VideoRotation.counterClockwise90 => 270,
+    };
+  }
+
+  String? _rotationFilter(int netRotationDegrees) {
+    return switch (netRotationDegrees) {
+      90 => 'transpose=1',
+      180 => 'transpose=1,transpose=1',
+      270 => 'transpose=2',
+      _ => null,
     };
   }
 

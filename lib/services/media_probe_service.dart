@@ -18,7 +18,10 @@ class MediaProbeService {
         '-v',
         'error',
         '-show_entries',
-        'format=format_name,format_long_name,duration:stream=codec_type,codec_name,profile,width,height,channels,sample_rate,bits_per_sample,bits_per_raw_sample,sample_fmt,avg_frame_rate,r_frame_rate',
+        'format=format_name,format_long_name,duration'
+            ':stream=codec_type,codec_name,profile,width,height,channels,sample_rate,bits_per_sample,bits_per_raw_sample,sample_fmt,avg_frame_rate,r_frame_rate'
+            ':stream_tags=rotate'
+            ':stream_side_data=rotation,side_data_type',
         '-of',
         'json',
         sourcePath,
@@ -80,6 +83,7 @@ class MediaProbeService {
       videoStream?['bits_per_raw_sample']?.toString() ?? '',
     );
     final bitDepth = (rawBitDepth != null && rawBitDepth > 0) ? rawBitDepth : null;
+    final sourceRotationDegrees = _extractSourceRotationDegrees(videoStream);
 
     return MediaProbeResult(
       sourcePath: sourcePath,
@@ -97,7 +101,47 @@ class MediaProbeService {
       acceptedFormatLabel: acceptedFormatLabel,
       bitDepth: bitDepth,
       durationSeconds: double.tryParse(format['duration']?.toString() ?? ''),
+      sourceRotationDegrees: sourceRotationDegrees,
     );
+  }
+
+  /// Clockwise degrees needed to display [videoStream]'s stored pixels
+  /// upright. Prefers the demuxed "Display Matrix" side data (which modern
+  /// demuxers also populate from legacy `rotate` tags on read), falling back
+  /// to the raw tag for older ffprobe builds that don't expose side data.
+  int _extractSourceRotationDegrees(Map<String, dynamic>? videoStream) {
+    if (videoStream == null) {
+      return 0;
+    }
+
+    final sideDataList = (videoStream['side_data_list'] as List<dynamic>? ?? const [])
+        .whereType<Map<String, dynamic>>();
+    final displayMatrix = sideDataList.cast<Map<String, dynamic>?>().firstWhere(
+          (entry) => entry?['side_data_type'] == 'Display Matrix',
+          orElse: () => null,
+        );
+    final displayMatrixRotation = num.tryParse(
+      displayMatrix?['rotation']?.toString() ?? '',
+    );
+    if (displayMatrixRotation != null) {
+      return _normalizeToCardinalDegrees(-displayMatrixRotation);
+    }
+
+    final tagRotation = num.tryParse(
+      videoStream['tags']?['rotate']?.toString() ?? '',
+    );
+    if (tagRotation != null) {
+      return _normalizeToCardinalDegrees(tagRotation);
+    }
+
+    return 0;
+  }
+
+  int _normalizeToCardinalDegrees(num degrees) {
+    final normalized = degrees.round() % 360;
+    final positive = normalized < 0 ? normalized + 360 : normalized;
+    final nearestCardinal = (positive / 90).round() * 90;
+    return nearestCardinal % 360;
   }
 
   String? _detectAcceptedFormat({
