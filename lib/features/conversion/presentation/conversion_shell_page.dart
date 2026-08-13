@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:path/path.dart' as path;
 
 import '../../../models/conversion_enums.dart';
+import '../../../models/conversion_progress.dart';
 import '../../../models/conversion_result.dart';
 import '../../../models/tool_detection_result.dart';
 import '../../../services/app_settings_service.dart';
@@ -1025,6 +1026,13 @@ class _ExecutionCard extends StatelessWidget {
                 '${controller.completedJobs}/${controller.totalJobs} processed'
                 '${controller.currentItem == null ? '' : ' • ${path.basename(controller.currentItem!)}'}',
               ),
+              if (controller.currentItem != null) ...[
+                const SizedBox(height: 12),
+                _CurrentFileProgress(
+                  fileName: path.basename(controller.currentItem!),
+                  progress: controller.currentFileProgress,
+                ),
+              ],
               const SizedBox(height: 16),
             ],
             if (controller.errorMessage != null) ...[
@@ -1055,6 +1063,70 @@ class _ExecutionCard extends StatelessWidget {
         ),
       ),
     );
+  }
+}
+
+class _CurrentFileProgress extends StatelessWidget {
+  const _CurrentFileProgress({
+    required this.fileName,
+    required this.progress,
+  });
+
+  final String fileName;
+  final ConversionProgress? progress;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final fraction = progress?.fraction;
+    final eta = progress?.eta;
+    final speed = progress?.speed;
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF7F8FA),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: theme.colorScheme.outlineVariant),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            fileName,
+            style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w700),
+            overflow: TextOverflow.ellipsis,
+          ),
+          const SizedBox(height: 10),
+          LinearProgressIndicator(value: fraction),
+          const SizedBox(height: 8),
+          Text(
+            [
+              fraction == null ? 'Working...' : '${(fraction * 100).toStringAsFixed(1)}%',
+              if (speed != null) '${speed.toStringAsFixed(2)}x speed',
+              eta == null ? 'ETA: calculating...' : 'ETA: ${_formatEta(eta)}',
+            ].join(' • '),
+            style: theme.textTheme.bodySmall,
+          ),
+        ],
+      ),
+    );
+  }
+
+  String _formatEta(Duration duration) {
+    final hours = duration.inHours;
+    final minutes = duration.inMinutes % 60;
+    final seconds = duration.inSeconds % 60;
+
+    if (hours > 0) {
+      return '${hours.toString().padLeft(2, '0')}:'
+          '${minutes.toString().padLeft(2, '0')}:'
+          '${seconds.toString().padLeft(2, '0')}';
+    }
+
+    return '${minutes.toString().padLeft(2, '0')}:'
+        '${seconds.toString().padLeft(2, '0')}';
   }
 }
 

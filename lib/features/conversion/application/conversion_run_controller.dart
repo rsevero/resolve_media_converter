@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 
 import '../../../models/conversion_enums.dart';
+import '../../../models/conversion_progress.dart';
 import '../../../models/conversion_request.dart';
 import '../../../models/conversion_result.dart';
 import '../../../services/conversion_execution_service.dart';
@@ -40,6 +41,7 @@ class ConversionRunController extends ChangeNotifier {
   List<ConversionResult> _results = const [];
   int _completedJobs = 0;
   int _totalJobs = 0;
+  ConversionProgress? _currentFileProgress;
 
   bool get isRunning => _isRunning;
   String? get currentItem => _currentItem;
@@ -47,6 +49,7 @@ class ConversionRunController extends ChangeNotifier {
   List<ConversionResult> get results => _results;
   int get completedJobs => _completedJobs;
   int get totalJobs => _totalJobs;
+  ConversionProgress? get currentFileProgress => _currentFileProgress;
 
   double get progress =>
       _totalJobs == 0 ? 0 : _completedJobs / _totalJobs;
@@ -57,6 +60,7 @@ class ConversionRunController extends ChangeNotifier {
     _currentItem = null;
     _completedJobs = 0;
     _totalJobs = 0;
+    _currentFileProgress = null;
     notifyListeners();
   }
 
@@ -106,6 +110,7 @@ class ConversionRunController extends ChangeNotifier {
 
     for (final sourcePath in resolution.candidatePaths) {
       _currentItem = sourcePath;
+      _currentFileProgress = null;
       notifyListeners();
 
       final probeResult = await _mediaProbeService.probe(
@@ -181,21 +186,48 @@ class ConversionRunController extends ChangeNotifier {
       final result = await _conversionExecutionService.execute(
         ffmpegPath: request.ffmpegPath,
         job: job,
+        expectedDuration: _computeExpectedDuration(
+          request: request,
+          probeDurationSeconds: probeResult.durationSeconds,
+        ),
+        onProgress: (fileProgress) {
+          _currentFileProgress = fileProgress;
+          notifyListeners();
+        },
       );
 
       results.add(result);
       _publishResults(results);
       _completedJobs++;
+      _currentFileProgress = null;
       notifyListeners();
     }
 
     _publishResults(results);
     _currentItem = null;
+    _currentFileProgress = null;
     _isRunning = false;
     notifyListeners();
   }
 
   void _publishResults(List<ConversionResult> results) {
     _results = List.unmodifiable(results.reversed);
+  }
+
+  Duration? _computeExpectedDuration({
+    required ConversionRequest request,
+    required double? probeDurationSeconds,
+  }) {
+    if (probeDurationSeconds == null) {
+      return null;
+    }
+
+    final sourceDuration = Duration(
+      microseconds: (probeDurationSeconds * Duration.microsecondsPerSecond).round(),
+    );
+    final start = request.startTime ?? Duration.zero;
+    final end = request.endTime ?? sourceDuration;
+    final trimmed = end - start;
+    return trimmed.isNegative ? null : trimmed;
   }
 }

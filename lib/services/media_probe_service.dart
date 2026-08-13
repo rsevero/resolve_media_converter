@@ -18,7 +18,7 @@ class MediaProbeService {
         '-v',
         'error',
         '-show_entries',
-        'format=format_name,format_long_name:stream=codec_type,codec_name,profile,width,height,channels,sample_rate,bits_per_sample,bits_per_raw_sample,sample_fmt,avg_frame_rate,r_frame_rate',
+        'format=format_name,format_long_name,duration:stream=codec_type,codec_name,profile,width,height,channels,sample_rate,bits_per_sample,bits_per_raw_sample,sample_fmt,avg_frame_rate,r_frame_rate',
         '-of',
         'json',
         sourcePath,
@@ -96,6 +96,7 @@ class MediaProbeService {
       isAcceptedForResolve: acceptedFormatLabel != null,
       acceptedFormatLabel: acceptedFormatLabel,
       bitDepth: bitDepth,
+      durationSeconds: double.tryParse(format['duration']?.toString() ?? ''),
     );
   }
 

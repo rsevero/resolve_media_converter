@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:resolve_media_converter/features/conversion/application/conversion_run_controller.dart';
 import 'package:resolve_media_converter/models/conversion_enums.dart';
+import 'package:resolve_media_converter/models/conversion_progress.dart';
 import 'package:resolve_media_converter/models/conversion_request.dart';
 import 'package:resolve_media_converter/models/conversion_result.dart';
 import 'package:resolve_media_converter/models/media_probe_result.dart';
@@ -404,6 +405,8 @@ class _FakeConversionExecutionService extends ConversionExecutionService {
   Future<ConversionResult> execute({
     required String ffmpegPath,
     required ResolvedJob job,
+    Duration? expectedDuration,
+    void Function(ConversionProgress progress)? onProgress,
   }) async {
     return ConversionResult(
       sourcePath: job.sourcePath,

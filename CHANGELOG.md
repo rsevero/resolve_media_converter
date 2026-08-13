@@ -6,6 +6,10 @@ The format is based on Keep a Changelog, and this project follows Semantic Versi
 
 ## v1.0.3 - Unreleased
 
+### Added
+
+- Per-file progress bar showing live conversion percentage, encode speed, and a real-time ETA for the file currently being converted.
+
 ### Fixed
 
 - Updated the Windows GitHub release workflow to use the renamed `resolve_media_converter` installer script, executable, and packaging path references so Windows release builds continue to work after the app rename.
