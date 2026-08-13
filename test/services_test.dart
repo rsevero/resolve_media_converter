@@ -440,6 +440,27 @@ void main() {
       expect(job.arguments, contains('-noautorotate'));
     });
 
+    test('removeMetadata ignores source rotation metadata entirely', () {
+      final request = ConversionRequest(
+        sourcePath: '/tmp/source.mov',
+        sourceType: SourceType.file,
+        outputMode: OutputMode.sameFolderSuffix,
+        ffmpegPath: 'ffmpeg',
+        ffprobePath: 'ffprobe',
+        rotation: VideoRotation.removeMetadata,
+      );
+
+      final job = const FfmpegCommandService().buildJob(
+        request: request,
+        sourcePath: '/tmp/source.mov',
+        destinationPath: '/tmp/source-for_resolve.mxf',
+        mediaKind: MediaKind.video,
+        sourceRotationDegrees: 90,
+      );
+
+      expect(job.arguments, isNot(contains('-vf')));
+    });
+
     test('ignores rotation for audio jobs', () {
       final request = ConversionRequest(
         sourcePath: '/tmp/source.wav',

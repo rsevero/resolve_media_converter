@@ -47,8 +47,9 @@ class FfmpegCommandService {
       ]);
     } else {
       final is10bit = bitDepth != null && bitDepth > 8;
-      final netRotationDegrees =
-          (sourceRotationDegrees + _rotationDegrees(request.rotation)) % 360;
+      final netRotationDegrees = request.rotation == VideoRotation.removeMetadata
+          ? 0
+          : (sourceRotationDegrees + _rotationDegrees(request.rotation)) % 360;
       final rotationFilter = _rotationFilter(netRotationDegrees);
       if (rotationFilter != null) {
         arguments.addAll(['-vf', rotationFilter]);
@@ -82,6 +83,7 @@ class FfmpegCommandService {
       VideoRotation.clockwise90 => 90,
       VideoRotation.rotate180 => 180,
       VideoRotation.counterClockwise90 => 270,
+      VideoRotation.removeMetadata => 0,
     };
   }
 

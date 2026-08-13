@@ -121,12 +121,19 @@ class _ConversionShellPageState extends State<ConversionShellPage> {
                               title: 'Conversion run',
                               controller: _conversionRunController,
                               onRunConversion: _runConversion,
-                              canRun: !_toolPathsController.isLoading &&
+                              canRun:
+                                  !_toolPathsController.isLoading &&
                                   !_conversionRunController.isRunning &&
-                                  _conversionSetupController.hasSourceSelection &&
-                                  _conversionSetupController.hasValidTrimRange &&
-                                  _toolPathsController.ffmpegValidation.isValid &&
-                                  _toolPathsController.ffprobeValidation.isValid,
+                                  _conversionSetupController
+                                      .hasSourceSelection &&
+                                  _conversionSetupController
+                                      .hasValidTrimRange &&
+                                  _toolPathsController
+                                      .ffmpegValidation
+                                      .isValid &&
+                                  _toolPathsController
+                                      .ffprobeValidation
+                                      .isValid,
                             ),
                           ),
                           SizedBox(
@@ -200,7 +207,8 @@ class _ConversionShellPageState extends State<ConversionShellPage> {
       );
     }
 
-    if (_startTimeTextController.text != _conversionSetupController.startTimeText) {
+    if (_startTimeTextController.text !=
+        _conversionSetupController.startTimeText) {
       final startTimeText = _conversionSetupController.startTimeText;
       _startTimeTextController.value = _startTimeTextController.value.copyWith(
         text: startTimeText,
@@ -436,7 +444,9 @@ class _ConversionShellPageState extends State<ConversionShellPage> {
     String selectedPath, {
     required bool isDirectory,
   }) async {
-    final directoryPath = isDirectory ? selectedPath : path.dirname(selectedPath);
+    final directoryPath = isDirectory
+        ? selectedPath
+        : path.dirname(selectedPath);
     _lastUsedDirectory = directoryPath;
     await _appSettingsService.saveLastUsedDirectory(directoryPath);
   }
@@ -528,7 +538,10 @@ class _ToolPathsCard extends StatelessWidget {
         child: Theme(
           data: theme.copyWith(dividerColor: Colors.transparent),
           child: ExpansionTile(
-            tilePadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+            tilePadding: const EdgeInsets.symmetric(
+              horizontal: 16,
+              vertical: 10,
+            ),
             childrenPadding: const EdgeInsets.fromLTRB(16, 0, 16, 20),
             initiallyExpanded: false,
             collapsedBackgroundColor: Colors.transparent,
@@ -689,11 +702,16 @@ class _ToolField extends StatelessWidget {
         const SizedBox(height: 8),
         Text(
           'Effective path: ${effectivePath ?? 'No executable available'}',
-          style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w600),
+          style: theme.textTheme.bodyMedium?.copyWith(
+            fontWeight: FontWeight.w600,
+          ),
         ),
         if (validation.versionLine != null) ...[
           const SizedBox(height: 6),
-          Text(validation.versionLine as String, style: theme.textTheme.bodySmall),
+          Text(
+            validation.versionLine as String,
+            style: theme.textTheme.bodySmall,
+          ),
         ],
         if (validation.message != null) ...[
           const SizedBox(height: 6),
@@ -860,7 +878,9 @@ class _OutputModeCard extends StatelessWidget {
         ? 'source_name'
         : path.basenameWithoutExtension(sourcePath);
 
-    final extension = controller.sourceType == SourceType.file ? '.wav or .mxf' : '.wav / .mxf';
+    final extension = controller.sourceType == SourceType.file
+        ? '.wav or .mxf'
+        : '.wav / .mxf';
 
     return switch (controller.outputMode) {
       OutputMode.sameFolderSuffix =>
@@ -975,8 +995,11 @@ class _TrimCard extends StatelessWidget {
             ),
             const SizedBox(height: 12),
             Text(
-              'Applies to video sources only; the frame is re-encoded at the new '
-              'orientation, not just tagged.',
+              controller.rotation == VideoRotation.removeMetadata
+                  ? 'The source\'s rotation metadata is ignored entirely; the raw stored '
+                        'orientation is kept as-is.'
+                  : 'Combined with the source\'s own rotation metadata and re-encoded '
+                        'into the frame, not just tagged.',
               style: theme.textTheme.bodyLarge,
             ),
             const SizedBox(height: 16),
@@ -1001,6 +1024,11 @@ class _TrimCard extends StatelessWidget {
                   value: VideoRotation.counterClockwise90,
                   icon: Icon(Icons.rotate_left),
                   label: Text('90° CCW'),
+                ),
+                ButtonSegment(
+                  value: VideoRotation.removeMetadata,
+                  icon: Icon(Icons.layers_clear),
+                  label: Text('Strip rotation metadata'),
                 ),
               ],
               selected: {controller.rotation},
@@ -1049,13 +1077,17 @@ class _ExecutionCard extends StatelessWidget {
                   ),
                 ),
                 TextButton(
-                  onPressed: controller.results.isEmpty ? null : controller.clearResults,
+                  onPressed: controller.results.isEmpty
+                      ? null
+                      : controller.clearResults,
                   child: const Text('Clear results'),
                 ),
                 const SizedBox(width: 12),
                 FilledButton.icon(
                   onPressed: canRun ? onRunConversion : null,
-                  icon: Icon(controller.isRunning ? Icons.sync : Icons.play_arrow),
+                  icon: Icon(
+                    controller.isRunning ? Icons.sync : Icons.play_arrow,
+                  ),
                   label: Text(controller.isRunning ? 'Running...' : 'Convert'),
                 ),
               ],
@@ -1109,10 +1141,7 @@ class _ExecutionCard extends StatelessWidget {
 }
 
 class _CurrentFileProgress extends StatelessWidget {
-  const _CurrentFileProgress({
-    required this.fileName,
-    required this.progress,
-  });
+  const _CurrentFileProgress({required this.fileName, required this.progress});
 
   final String fileName;
   final ConversionProgress? progress;
@@ -1137,7 +1166,9 @@ class _CurrentFileProgress extends StatelessWidget {
         children: [
           Text(
             fileName,
-            style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w700),
+            style: theme.textTheme.titleSmall?.copyWith(
+              fontWeight: FontWeight.w700,
+            ),
             overflow: TextOverflow.ellipsis,
           ),
           const SizedBox(height: 10),
@@ -1145,7 +1176,9 @@ class _CurrentFileProgress extends StatelessWidget {
           const SizedBox(height: 8),
           Text(
             [
-              fraction == null ? 'Working...' : '${(fraction * 100).toStringAsFixed(1)}%',
+              fraction == null
+                  ? 'Working...'
+                  : '${(fraction * 100).toStringAsFixed(1)}%',
               if (speed != null) '${speed.toStringAsFixed(2)}x speed',
               eta == null ? 'ETA: calculating...' : 'ETA: ${_formatEta(eta)}',
             ].join(' • '),
@@ -1259,7 +1292,9 @@ class _ResultRow extends StatelessWidget {
 
     if (logFilePath == null) {
       messenger.showSnackBar(
-        const SnackBar(content: Text('No log file is available for this item.')),
+        const SnackBar(
+          content: Text('No log file is available for this item.'),
+        ),
       );
       return;
     }
@@ -1297,9 +1332,8 @@ class _ResultRow extends StatelessWidget {
                     child: SingleChildScrollView(
                       child: SelectableText(
                         logText,
-                        style: Theme.of(dialogContext).textTheme.bodySmall?.copyWith(
-                          fontFamily: 'monospace',
-                        ),
+                        style: Theme.of(dialogContext).textTheme.bodySmall
+                            ?.copyWith(fontFamily: 'monospace'),
                       ),
                     ),
                   ),
