@@ -10,12 +10,14 @@ The format is based on Keep a Changelog, and this project follows Semantic Versi
 
 - Per-file progress bar showing live conversion percentage, encode speed, and a real-time ETA for the file currently being converted.
 - Rotation option (90°/180°/270°) for video sources, applied by re-encoding the frame with an ffmpeg `transpose` filter rather than just tagging metadata, so orientation is correct regardless of how the destination player or NLE handles rotation tags. The requested rotation is combined with the source's own rotation metadata (e.g. a file tagged +90° with a -90° rotation requested converts to 0° net rotation) instead of being applied on top of it. A fifth, mutually exclusive "Strip metadata" choice ignores the source's rotation metadata entirely and keeps the raw stored orientation.
+- `scripts/update_flutter_version.dart` and an expanded `packaging/README.md` release checklist, to keep the Flutter SDK version pinned in the Linux/Windows GitHub Actions workflows and the Codemagic macOS workflow from drifting out of sync with each other.
 
 ### Fixed
 
 - Updated the Windows GitHub release workflow to use the renamed `resolve_media_converter` installer script, executable, and packaging path references so Windows release builds continue to work after the app rename.
 - Updated the Codemagic macOS DMG packaging spec and verifier to look for `Resolve Media Converter.app` instead of the old `resolve_media_converter.app` bundle name after the app rename.
 - Restored the SVG pixbuf loader in the Linux AppImage so GTK file-selection dialogs work on Fedora 44 and systems whose host loader paths differ from the bundled cache.
+- Synced the Linux and Windows GitHub Actions workflows to Flutter 3.47.0, matching the version already used by the Codemagic macOS workflow.
 
 ## v1.0.2 - released on 2026-07-01
 

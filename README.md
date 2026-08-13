@@ -41,7 +41,7 @@ flutter test
 - Linux releases include both a tarball bundle and an AppImage
 - Windows releases are packaged as installer `.exe` files
 - macOS releases are packaged as DMG files
-- See `packaging/README.md` for the release flow and asset naming
+- See `packaging/README.md` for the release checklist, asset naming, and keeping the Flutter version in sync across pipelines
 
 ## Manual verification checklist
 
