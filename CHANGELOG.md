@@ -10,6 +10,7 @@ The format is based on Keep a Changelog, and this project follows Semantic Versi
 
 - Updated the Windows GitHub release workflow to use the renamed `resolve_media_converter` installer script, executable, and packaging path references so Windows release builds continue to work after the app rename.
 - Updated the Codemagic macOS DMG packaging spec and verifier to look for `Resolve Media Converter.app` instead of the old `resolve_media_converter.app` bundle name after the app rename.
+- Restored the SVG pixbuf loader in the Linux AppImage so GTK file-selection dialogs work on Fedora 44 and systems whose host loader paths differ from the bundled cache.
 
 ## v1.0.2 - released on 2026-07-01
 

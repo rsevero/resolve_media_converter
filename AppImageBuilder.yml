@@ -69,6 +69,7 @@ AppDir:
       - libglib2.0-0
       - libgtk-3-0
       - libpcre3
+      - librsvg2-common
       - shared-mime-info
     exclude:
       - humanity-icon-theme
@@ -94,6 +95,12 @@ AppDir:
     LD_LIBRARY_PATH="$APPDIR_PATH/usr/lib/x86_64-linux-gnu:${LD_LIBRARY_PATH:-}" \
       "$query_loader_bin" \
       > "$APPDIR_PATH/usr/lib/x86_64-linux-gnu/gdk-pixbuf-2.0/2.10.0/loaders.cache"
+
+    svg_loader=$(find "$APPDIR_PATH" -type f -name libpixbufloader-svg.so | head -n1)
+    if [ -z "$svg_loader" ]; then
+      echo "SVG pixbuf loader not found in AppDir" >&2
+      exit 1
+    fi
   files:
     include:
       - lib64/ld-linux-x86-64.so.2
