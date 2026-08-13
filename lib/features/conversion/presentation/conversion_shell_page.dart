@@ -966,6 +966,48 @@ class _TrimCard extends StatelessWidget {
                 style: theme.textTheme.bodyMedium,
               ),
             ),
+            const SizedBox(height: 24),
+            Text(
+              'Rotation',
+              style: theme.textTheme.titleLarge?.copyWith(
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+            const SizedBox(height: 12),
+            Text(
+              'Applies to video sources only; the frame is re-encoded at the new '
+              'orientation, not just tagged.',
+              style: theme.textTheme.bodyLarge,
+            ),
+            const SizedBox(height: 16),
+            SegmentedButton<VideoRotation>(
+              segments: const [
+                ButtonSegment(
+                  value: VideoRotation.none,
+                  icon: Icon(Icons.crop_original),
+                  label: Text('None'),
+                ),
+                ButtonSegment(
+                  value: VideoRotation.clockwise90,
+                  icon: Icon(Icons.rotate_right),
+                  label: Text('90° CW'),
+                ),
+                ButtonSegment(
+                  value: VideoRotation.rotate180,
+                  icon: Icon(Icons.flip_camera_android),
+                  label: Text('180°'),
+                ),
+                ButtonSegment(
+                  value: VideoRotation.counterClockwise90,
+                  icon: Icon(Icons.rotate_left),
+                  label: Text('90° CCW'),
+                ),
+              ],
+              selected: {controller.rotation},
+              onSelectionChanged: (selection) {
+                controller.setRotation(selection.first);
+              },
+            ),
           ],
         ),
       ),

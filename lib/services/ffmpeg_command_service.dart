@@ -42,6 +42,10 @@ class FfmpegCommandService {
       ]);
     } else {
       final is10bit = bitDepth != null && bitDepth > 8;
+      final rotationFilter = _rotationFilter(request.rotation);
+      if (rotationFilter != null) {
+        arguments.addAll(['-vf', rotationFilter]);
+      }
       arguments.addAll([
         '-c:v',
         'dnxhd',
@@ -63,6 +67,15 @@ class FfmpegCommandService {
       mediaKind: mediaKind,
       arguments: arguments,
     );
+  }
+
+  String? _rotationFilter(VideoRotation rotation) {
+    return switch (rotation) {
+      VideoRotation.none => null,
+      VideoRotation.clockwise90 => 'transpose=1',
+      VideoRotation.rotate180 => 'transpose=1,transpose=1',
+      VideoRotation.counterClockwise90 => 'transpose=2',
+    };
   }
 
   String _formatDuration(Duration duration) {

@@ -260,6 +260,85 @@ void main() {
       expect(job.arguments, containsAllInOrder(['-profile:v', 'dnxhr_hq']));
       expect(job.arguments, containsAllInOrder(['-pix_fmt', 'yuv422p']));
     });
+
+    test('omits -vf when rotation is none', () {
+      final request = ConversionRequest(
+        sourcePath: '/tmp/source.mov',
+        sourceType: SourceType.file,
+        outputMode: OutputMode.sameFolderSuffix,
+        ffmpegPath: 'ffmpeg',
+        ffprobePath: 'ffprobe',
+      );
+
+      final job = const FfmpegCommandService().buildJob(
+        request: request,
+        sourcePath: '/tmp/source.mov',
+        destinationPath: '/tmp/source-for_resolve.mxf',
+        mediaKind: MediaKind.video,
+      );
+
+      expect(job.arguments, isNot(contains('-vf')));
+    });
+
+    test('applies a transpose filter for 90 degree clockwise rotation', () {
+      final request = ConversionRequest(
+        sourcePath: '/tmp/source.mov',
+        sourceType: SourceType.file,
+        outputMode: OutputMode.sameFolderSuffix,
+        ffmpegPath: 'ffmpeg',
+        ffprobePath: 'ffprobe',
+        rotation: VideoRotation.clockwise90,
+      );
+
+      final job = const FfmpegCommandService().buildJob(
+        request: request,
+        sourcePath: '/tmp/source.mov',
+        destinationPath: '/tmp/source-for_resolve.mxf',
+        mediaKind: MediaKind.video,
+      );
+
+      expect(job.arguments, containsAllInOrder(['-vf', 'transpose=1']));
+    });
+
+    test('applies a double transpose filter for 180 degree rotation', () {
+      final request = ConversionRequest(
+        sourcePath: '/tmp/source.mov',
+        sourceType: SourceType.file,
+        outputMode: OutputMode.sameFolderSuffix,
+        ffmpegPath: 'ffmpeg',
+        ffprobePath: 'ffprobe',
+        rotation: VideoRotation.rotate180,
+      );
+
+      final job = const FfmpegCommandService().buildJob(
+        request: request,
+        sourcePath: '/tmp/source.mov',
+        destinationPath: '/tmp/source-for_resolve.mxf',
+        mediaKind: MediaKind.video,
+      );
+
+      expect(job.arguments, containsAllInOrder(['-vf', 'transpose=1,transpose=1']));
+    });
+
+    test('ignores rotation for audio jobs', () {
+      final request = ConversionRequest(
+        sourcePath: '/tmp/source.wav',
+        sourceType: SourceType.file,
+        outputMode: OutputMode.sameFolderSuffix,
+        ffmpegPath: 'ffmpeg',
+        ffprobePath: 'ffprobe',
+        rotation: VideoRotation.clockwise90,
+      );
+
+      final job = const FfmpegCommandService().buildJob(
+        request: request,
+        sourcePath: '/tmp/source.wav',
+        destinationPath: '/tmp/source-for_resolve.wav',
+        mediaKind: MediaKind.audio,
+      );
+
+      expect(job.arguments, isNot(contains('-vf')));
+    });
   });
 
   group('ConversionLogService', () {

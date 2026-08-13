@@ -9,6 +9,7 @@ class ConversionRequest {
     required this.ffprobePath,
     this.startTime,
     this.endTime,
+    this.rotation = VideoRotation.none,
   });
 
   final String sourcePath;
@@ -16,6 +17,7 @@ class ConversionRequest {
   final OutputMode outputMode;
   final Duration? startTime;
   final Duration? endTime;
+  final VideoRotation rotation;
   final String ffmpegPath;
   final String ffprobePath;
 }

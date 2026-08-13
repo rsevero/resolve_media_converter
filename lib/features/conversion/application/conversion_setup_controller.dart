@@ -12,6 +12,7 @@ class ConversionSetupController extends ChangeNotifier {
 
   SourceType _sourceType = SourceType.file;
   OutputMode _outputMode = OutputMode.sameFolderSuffix;
+  VideoRotation _rotation = VideoRotation.none;
   String? _selectedSourcePath;
   String _startTimeText = '';
   String _endTimeText = '';
@@ -20,6 +21,7 @@ class ConversionSetupController extends ChangeNotifier {
 
   SourceType get sourceType => _sourceType;
   OutputMode get outputMode => _outputMode;
+  VideoRotation get rotation => _rotation;
   String? get selectedSourcePath => _selectedSourcePath;
   String get startTimeText => _startTimeText;
   String get endTimeText => _endTimeText;
@@ -50,6 +52,15 @@ class ConversionSetupController extends ChangeNotifier {
     notifyListeners();
   }
 
+  void setRotation(VideoRotation value) {
+    if (_rotation == value) {
+      return;
+    }
+
+    _rotation = value;
+    notifyListeners();
+  }
+
   void setSelectedSourcePath(String? value) {
     final normalized = value?.trim();
     _selectedSourcePath = normalized == null || normalized.isEmpty ? null : normalized;
@@ -61,6 +72,7 @@ class ConversionSetupController extends ChangeNotifier {
     _endTimeText = '';
     _startTimeError = null;
     _endTimeError = null;
+    _rotation = VideoRotation.none;
     notifyListeners();
   }
 
@@ -101,6 +113,7 @@ class ConversionSetupController extends ChangeNotifier {
       ffprobePath: ffprobePath,
       startTime: startResult.duration,
       endTime: endResult.duration,
+      rotation: _rotation,
     );
   }
 
