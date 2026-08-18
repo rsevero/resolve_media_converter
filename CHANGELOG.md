@@ -4,6 +4,16 @@ All notable changes to this project will be documented in this file.
 
 The format is based on Keep a Changelog, and this project follows Semantic Versioning.
 
+## v1.0.4 - not yet released
+
+### Added
+
+### Changed
+
+- Migrated Material widget imports from the bundled `package:flutter/material.dart` to the standalone `material_ui` package ahead of the Fall stable release, which deprecates the SDK-bundled Material/Cupertino libraries.
+
+### Fixed
+
 ## v1.0.3 - released on 2026-08-13
 
 ### Added
