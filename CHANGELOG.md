@@ -4,6 +4,16 @@ All notable changes to this project will be documented in this file.
 
 The format is based on Keep a Changelog, and this project follows Semantic Versioning.
 
+## v1.0.5 - not yet released
+
+### Added
+
+### Changed
+
+- GitHub release titles now use the bare tag (e.g. `v1.0.5`) instead of `Resolve Media Converter v1.0.5`, matching GitHub's default release title convention.
+
+### Fixed
+
 ## v1.0.4 - released on 2026-08-20
 
 ### Added

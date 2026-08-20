@@ -130,7 +130,7 @@ workflows:
         - name: Create GitHub Release with GH CLI
           script: |
             set -e
-            TITLE="Resolve Media Converter $RELEASE_TAG"
+            TITLE="$RELEASE_TAG"
             if [ -z "${GITHUB_TOKEN:-}" ]; then
               echo "ERROR: GITHUB_TOKEN is not set. Check the resolve_media_converter_github_token variable group in Codemagic."
               exit 1
