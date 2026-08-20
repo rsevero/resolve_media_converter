@@ -23,17 +23,25 @@ class FfmpegCommandService {
     ];
 
     if (request.startTime != null) {
+      // Input-side -ss: modern ffmpeg seeks accurately (not just to the
+      // nearest keyframe) when -ss precedes -i for demuxers that support it,
+      // so a single -ss here is both fast and frame-accurate. Do not also
+      // add -ss after -i — that would apply the start offset a second time.
       arguments.addAll(['-ss', _formatDuration(request.startTime!)]);
     }
 
     arguments.addAll(['-i', sourcePath]);
 
-    if (request.startTime != null) {
-      arguments.addAll(['-ss', _formatDuration(request.startTime!)]);
-    }
-
     if (request.endTime != null) {
-      arguments.addAll(['-to', _formatDuration(request.endTime!)]);
+      // Because -ss is applied as an input option, ffmpeg resets the output
+      // timeline to zero at the seek point, so -to (an absolute output
+      // timestamp) would actually land at endTime after the seek instead of
+      // at endTime measured from the start of the source. Use -t (duration)
+      // relative to startTime instead so the trim always ends at endTime.
+      final duration = request.startTime != null
+          ? request.endTime! - request.startTime!
+          : request.endTime!;
+      arguments.addAll(['-t', _formatDuration(duration)]);
     }
 
     if (mediaKind == MediaKind.audio) {

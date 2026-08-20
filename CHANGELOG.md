@@ -14,6 +14,9 @@ The format is based on Keep a Changelog, and this project follows Semantic Versi
 
 ### Fixed
 
+- Fixed trimmed conversions starting several seconds later than the requested start time: `-ss` was applied both before and after `-i`, so the start offset was effectively added twice.
+- Fixed trimmed conversions ending past the requested end time: once `-ss` was applied only as an input option, `-to` was measured from the seek point instead of the start of the source, so it behaved like a duration rather than an absolute end time. Trims now compute an explicit duration (`-t`, end time minus start time) instead of relying on `-to`.
+
 ## v1.0.3 - released on 2026-08-13
 
 ### Added
