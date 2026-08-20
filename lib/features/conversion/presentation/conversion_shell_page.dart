@@ -303,7 +303,7 @@ class _ConversionShellPageState extends State<ConversionShellPage> {
         dialogTitle: dialogTitle,
         initialDirectory: _lastUsedDirectory,
       );
-      return result?.files.singleOrNull?.path;
+      return result.singleOrNull?.path;
     } catch (error) {
       _showPickerFallbackNotice(error);
       return _showManualPathDialog(

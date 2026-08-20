@@ -17,6 +17,7 @@ The format is based on Keep a Changelog, and this project follows Semantic Versi
 
 - Fixed trimmed conversions starting several seconds later than the requested start time: `-ss` was applied both before and after `-i`, so the start offset was effectively added twice.
 - Fixed trimmed conversions ending past the requested end time: once `-ss` was applied only as an input option, `-to` was measured from the seek point instead of the start of the source, so it behaved like a duration rather than an absolute end time. Trims now compute an explicit duration (`-t`, end time minus start time) instead of relying on `-to`.
+- Fixed the app failing to build after the `file_picker` 12.x upgrade: `FilePicker.pickFiles` now returns `List<PlatformFile>` directly instead of a `FilePickerResult` wrapper, so the source-file picker call site no longer compiled.
 
 ## v1.0.3 - released on 2026-08-13
 
