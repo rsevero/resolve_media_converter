@@ -31,6 +31,7 @@ class _ConversionShellPageState extends State<ConversionShellPage> {
   late final TextEditingController _ffprobeTextController;
   late final TextEditingController _startTimeTextController;
   late final TextEditingController _endTimeTextController;
+  late final TextEditingController _durationTextController;
   String? _lastUsedDirectory;
 
   @override
@@ -41,6 +42,7 @@ class _ConversionShellPageState extends State<ConversionShellPage> {
     _ffprobeTextController = TextEditingController();
     _startTimeTextController = TextEditingController();
     _endTimeTextController = TextEditingController();
+    _durationTextController = TextEditingController();
     _toolPathsController = ToolPathsController(
       settingsService: _appSettingsService,
       toolDetectionService: const ToolDetectionService(),
@@ -66,6 +68,7 @@ class _ConversionShellPageState extends State<ConversionShellPage> {
     _ffprobeTextController.dispose();
     _startTimeTextController.dispose();
     _endTimeTextController.dispose();
+    _durationTextController.dispose();
     super.dispose();
   }
 
@@ -113,6 +116,7 @@ class _ConversionShellPageState extends State<ConversionShellPage> {
                               controller: _conversionSetupController,
                               startTimeTextController: _startTimeTextController,
                               endTimeTextController: _endTimeTextController,
+                              durationTextController: _durationTextController,
                             ),
                           ),
                           SizedBox(
@@ -221,6 +225,14 @@ class _ConversionShellPageState extends State<ConversionShellPage> {
       _endTimeTextController.value = _endTimeTextController.value.copyWith(
         text: endTimeText,
         selection: TextSelection.collapsed(offset: endTimeText.length),
+      );
+    }
+
+    if (_durationTextController.text != _conversionSetupController.durationText) {
+      final durationText = _conversionSetupController.durationText;
+      _durationTextController.value = _durationTextController.value.copyWith(
+        text: durationText,
+        selection: TextSelection.collapsed(offset: durationText.length),
       );
     }
   }
@@ -896,11 +908,13 @@ class _TrimCard extends StatelessWidget {
     required this.controller,
     required this.startTimeTextController,
     required this.endTimeTextController,
+    required this.durationTextController,
   });
 
   final ConversionSetupController controller;
   final TextEditingController startTimeTextController;
   final TextEditingController endTimeTextController;
+  final TextEditingController durationTextController;
 
   @override
   Widget build(BuildContext context) {
@@ -920,13 +934,17 @@ class _TrimCard extends StatelessWidget {
             ),
             const SizedBox(height: 12),
             Text(
-              'Start and end time are both optional. Accepted formats: SS, MM:SS, HH:MM:SS, HH:MM:SS.mmm.',
+              'Start time, end time, and duration are all optional. Set either an end '
+              'time or a duration, not both. Accepted formats: SS, MM:SS, HH:MM:SS, '
+              'HH:MM:SS.mmm.',
               style: theme.textTheme.bodyLarge,
             ),
             const SizedBox(height: 16),
             LayoutBuilder(
               builder: (context, constraints) {
                 final useSideBySide = constraints.maxWidth >= 720;
+                final durationLocked = endTimeTextController.text.trim().isNotEmpty;
+                final endTimeLocked = durationTextController.text.trim().isNotEmpty;
 
                 final startField = TextField(
                   controller: startTimeTextController,
@@ -941,12 +959,28 @@ class _TrimCard extends StatelessWidget {
 
                 final endField = TextField(
                   controller: endTimeTextController,
+                  enabled: !endTimeLocked,
                   onChanged: controller.updateEndTimeText,
                   decoration: InputDecoration(
                     labelText: 'End time',
                     hintText: '00:01:02.000',
+                    helperText: endTimeLocked ? 'Clear duration to set an end time.' : null,
                     border: const OutlineInputBorder(),
                     errorText: controller.endTimeError,
+                  ),
+                );
+
+                final durationField = TextField(
+                  controller: durationTextController,
+                  enabled: !durationLocked,
+                  onChanged: controller.updateDurationText,
+                  decoration: InputDecoration(
+                    labelText: 'Duration',
+                    hintText: '00:00:30.000',
+                    helperText:
+                        durationLocked ? 'Clear end time to set a duration.' : null,
+                    border: const OutlineInputBorder(),
+                    errorText: controller.durationError,
                   ),
                 );
 
@@ -956,6 +990,8 @@ class _TrimCard extends StatelessWidget {
                       startField,
                       const SizedBox(height: 16),
                       endField,
+                      const SizedBox(height: 16),
+                      durationField,
                     ],
                   );
                 }
@@ -966,6 +1002,8 @@ class _TrimCard extends StatelessWidget {
                     Expanded(child: startField),
                     const SizedBox(width: 16),
                     Expanded(child: endField),
+                    const SizedBox(width: 16),
+                    Expanded(child: durationField),
                   ],
                 );
               },
@@ -981,7 +1019,7 @@ class _TrimCard extends StatelessWidget {
               ),
               child: Text(
                 controller.hasValidTrimRange
-                    ? 'Trim inputs are valid. Leave both blank for a full conversion.'
+                    ? 'Trim inputs are valid. Leave all blank for a full conversion.'
                     : 'Fix the trim inputs before running a conversion.',
                 style: theme.textTheme.bodyMedium,
               ),

@@ -8,6 +8,8 @@ The format is based on Keep a Changelog, and this project follows Semantic Versi
 
 ### Added
 
+- Duration option in Trim Controls, as an alternative to setting an explicit end time. Only one of end time or duration can be set at a time; the other field disables itself while the first has a value, and the end time used for conversion is derived from start time plus duration.
+
 ### Changed
 
 - Migrated Material widget imports from the bundled `package:flutter/material.dart` to the standalone `material_ui` package ahead of the Fall stable release, which deprecates the SDK-bundled Material/Cupertino libraries.

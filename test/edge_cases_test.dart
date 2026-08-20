@@ -68,6 +68,36 @@ void main() {
       expect(request!.startTime, isNull);
       expect(request.endTime, isNull);
     });
+
+    test('duration is combined with start time to derive end time', () {
+      final controller = ConversionSetupController();
+
+      controller.setSelectedSourcePath('/tmp/source.mov');
+      controller.updateStartTimeText('00:00:10');
+      controller.updateDurationText('00:00:05');
+
+      expect(controller.hasValidTrimRange, isTrue);
+
+      final request = controller.buildRequest(
+        ffmpegPath: '/usr/bin/ffmpeg',
+        ffprobePath: '/usr/bin/ffprobe',
+      );
+
+      expect(request, isNotNull);
+      expect(request!.startTime, const Duration(seconds: 10));
+      expect(request.endTime, const Duration(seconds: 15));
+    });
+
+    test('setting both end time and duration is rejected', () {
+      final controller = ConversionSetupController();
+
+      controller.updateEndTimeText('00:00:10');
+      controller.updateDurationText('00:00:05');
+
+      expect(controller.hasValidTrimRange, isFalse);
+      expect(controller.endTimeError, isNotNull);
+      expect(controller.durationError, isNotNull);
+    });
   });
 
   group('ToolPathsSettings', () {
