@@ -30,7 +30,13 @@ prevent that.
    (`dart run scripts/update_flutter_version.dart 3.48.0`) if you want to pin
    to something other than your local install.
 4. Commit and push the release changes (including any workflow file updates
-   from step 3).
+   from step 3), e.g.:
+
+   ```bash
+   git commit -am "v1.0.0"
+   git push
+   ```
+
 5. Create and push an annotated tag like:
 
    ```bash
