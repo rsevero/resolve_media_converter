@@ -4,7 +4,7 @@ All notable changes to this project will be documented in this file.
 
 The format is based on Keep a Changelog, and this project follows Semantic Versioning.
 
-## v1.0.4 - not yet released
+## v1.0.4 - released on 2026-08-20
 
 ### Added
 
@@ -14,6 +14,7 @@ The format is based on Keep a Changelog, and this project follows Semantic Versi
 
 - Migrated Material widget imports from the bundled `package:flutter/material.dart` to the standalone `material_ui` package ahead of the Fall stable release, which deprecates the SDK-bundled Material/Cupertino libraries.
 - Upgraded `file_picker` from 11.x to 12.x, which splits the plugin into per-platform packages (`file_picker_darwin`, `file_picker_linux`, `file_picker_web`, etc.) under the hood.
+- `flutter upgrade` and `flutter pub get --major-versions` to ensure all dependencies are up to date.
 
 ### Fixed
 
